@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable class-methods-use-this */
-import SendGridMail from '@sendgrid/mail';
-import { SENDGRID_API_KEY, FRONTEND_BASE_URL, SENDER_EMAIL } from 'src/config';
+import { FRONTEND_BASE_URL, SENDER_EMAIL, TRANSPORTER } from 'src/config';
 
 interface IVerifyEmail {
     email: string;
@@ -17,17 +16,15 @@ interface ICustomerIdUpdatedEmail {
 export class SendGrid {
     async sendMail(user: IVerifyEmail) {
         try {
-            SendGridMail.setApiKey(SENDGRID_API_KEY);
-
-            const message = {
+            await TRANSPORTER.sendMail({
                 to: user.email,
-                from: SENDER_EMAIL, // Use the email address or domain you verified above
+                from: {
+                    name: 'Warung Ibu Support',
+                    address: SENDER_EMAIL
+                },
                 subject: 'Kode Verifikasi pendaftaran',
                 text: `Kode verifikasi anda adalah ${user.verification_token}`
-                // html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-            };
-
-            await SendGridMail.send(message);
+            });
         } catch (error) {
             console.error(error);
 
@@ -39,17 +36,15 @@ export class SendGrid {
 
     async sendPasswordResetEmail(user: IVerifyEmail) {
         try {
-            SendGridMail.setApiKey(SENDGRID_API_KEY);
-
-            const message = {
+            await TRANSPORTER.sendMail({
                 to: user.email,
-                from: SENDER_EMAIL, // Use the email address or domain you verified above
+                from: {
+                    name: 'Warung Ibu Support',
+                    address: SENDER_EMAIL
+                },
                 subject: 'Reset Password Link',
                 text: `Untuk melakukan reset password, klik link berikut sebelum ${user.expiry_at}.\n\n${FRONTEND_BASE_URL}/reset-password/${user.verification_token}`
-                // html: '<strong>and easy to do anywhere, even with Node.js</strong>'
-            };
-
-            await SendGridMail.send(message);
+            });
         } catch (error) {
             console.error(error);
 
@@ -61,17 +56,15 @@ export class SendGrid {
 
     async sendCustomerIdUpdatedEmail(data: ICustomerIdUpdatedEmail) {
         try {
-            SendGridMail.setApiKey(SENDGRID_API_KEY);
-
-            const message = {
+            await TRANSPORTER.sendMail({
                 to: data.email,
-                from: SENDER_EMAIL, // Use the email address or domain you verified above
+                from: {
+                    name: 'Warung Ibu Support',
+                    address: SENDER_EMAIL
+                },
                 subject: 'Customer ID anda telah diperbarui',
                 text: `Customer ID anda adalah ${data.customer_id}.`
-                // html: '<strong>and easy to do anywhere, even with Node.js</strong>'
-            };
-
-            await SendGridMail.send(message);
+            });
         } catch (error) {
             console.error(error);
 

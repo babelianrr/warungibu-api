@@ -1,4 +1,5 @@
 /* eslint no-process-env: "off" */
+import nodemailer from 'nodemailer';
 
 export const { NODE_ENV } = process.env;
 export const PORT = process.env.PORT || '3000';
@@ -23,8 +24,18 @@ export const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'https://bicar
 
 export const MAX_CART_QUANTITY = 50;
 
-export const SENDER_EMAIL = 'support@dnrplus.com';
+export const SENDER_EMAIL = process.env.SENDER_EMAIL || 'support@warungibu.co.id';
 
 export const DIGIFLAZZ_USERNAME = 'wizekagwO2Pg';
 
 export const DIGIFLAZZ_API_KEY = 'dev-d71c09d0-84d6-11ed-bdd1-df360bd754b8';
+
+export const TRANSPORTER = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true,
+    auth: {
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD
+    }
+});
