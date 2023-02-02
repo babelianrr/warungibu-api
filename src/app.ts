@@ -8,7 +8,7 @@ import cors from 'cors';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 
-import { PORT } from 'src/config';
+import { PORT, TRANSPORTER } from 'src/config';
 import { errorHandler } from 'src/controllers/middlewares/handle-error-code';
 
 import { init } from 'src/init';
@@ -160,6 +160,15 @@ export async function createApp(): Promise<express.Application> {
             }
         })
     );
+
+    // verify connection configuration
+    TRANSPORTER.verify((error, success) => {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('SMTP Server is ready to take our messages');
+        }
+    });
 
     app.use(errorHandler());
     return app;
