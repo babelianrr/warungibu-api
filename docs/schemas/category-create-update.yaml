@@ -1,0 +1,10 @@
+title: CategoryCreateUpdate
+type: object
+description: User input schema for categories
+properties:
+  name:
+    type: string
+  icon:
+    type: object
+required:
+  - name

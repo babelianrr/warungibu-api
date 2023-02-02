@@ -1,0 +1,41 @@
+title: Cart
+type: object
+description: Model representing user's cart
+properties:
+  id:
+    type: string
+    format: uuid
+  user_id:
+    type: string
+    format: uuid
+  location:
+    type: string
+    description: location of the source warehouse
+  product:
+    $ref: ../product-summary.yaml
+  quantity:
+    type: number
+  final_unit_price:
+    type: number
+  order_id:
+    type: string
+    format: uuid
+  status:
+    type: string
+    enum:
+      - ACTIVE
+      - DELETED
+      - ORDERED
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - user_id
+  - location
+  - product
+  - quantity
+  - status

@@ -1,0 +1,34 @@
+title: Payment
+type: object
+description: Model representing payment for an order
+properties:
+  id:
+    type: string
+  total_price:
+    type: number
+  payment_method:
+    type: string
+  payment_id:
+    type: string
+  status:
+    type: string
+  events:
+    type: array
+    items:
+      $ref: ./payment_events.yaml
+  paid_at:
+    type: string
+    format: date-time
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - total_price
+  - payment_method
+  - payment_id
+  - status
+  - events

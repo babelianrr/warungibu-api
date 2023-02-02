@@ -1,0 +1,92 @@
+title: Product
+type: object
+description: Model representing product
+properties:
+  id:
+    type: string
+    format: uuid
+  name:
+    type: string
+    description: Product title
+  picture_url:
+    type: string
+    description: Path to picture file
+  sku_number:
+    type: string
+    description: Product's SKU number
+  company_name:
+    type: string
+    description: Product's brand
+  description:
+    type: string
+    description: Description about the product
+  unit:
+    type: integer
+    description: Unit of the product
+  slug:
+    type: string
+    description: Slug url of the product
+  price:
+    type: integer
+    description: Price per unit of product
+  discount_percentage:
+    type: integer
+    description: Percentage of the discount
+  discount_price:
+    type: integer
+    description: Discount amount
+  discount_type:
+    type: string
+    enum:
+      - PRICE
+      - PERCENTAGE
+    description: Type of the discount to be shown
+  status:
+    type: string
+    enum:
+      - ACTIVE
+      - INACTIVE
+    description: Status of the product
+  categories:
+    type: array
+    description: Array of categories name
+    items:
+      $ref: '#/definitions/Category-summary'
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - name
+  - sku_number
+  - brand
+  - weight
+  - slug
+  - price
+  - status
+definitions:
+  Category-summary:
+    title: Category
+    type: object
+    description: Model representing category info for product response
+    examples:
+      Kesehatan:
+        value:
+          id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+          name: Kesehatan
+          icon_url: category/medicine.jpeg
+          created: '2019-08-24T14:15:22Z'
+          updated: '2019-08-24T14:15:22Z'
+    properties:
+      name:
+        type: string
+        description: Name of the category. This value should be unique
+      icon_url:
+        type: string
+        description: Path to the icon of the category
+    required:
+      - name
+      - icon_url

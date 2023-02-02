@@ -1,0 +1,15 @@
+title: CartCreate
+type: object
+description: User input when cart is created
+properties:
+  product_id:
+    type: string
+    format: uuid
+  location:
+    type: string
+  quantity:
+    type: number
+required:
+  - product_id
+  - location
+  - quantity

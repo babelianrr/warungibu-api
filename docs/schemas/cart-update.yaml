@@ -1,0 +1,8 @@
+title: CartUpdate
+type: object
+description: User input when cart is updated
+properties:
+  location:
+    type: string
+  quantity:
+    type: number

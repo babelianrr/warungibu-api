@@ -1,0 +1,21 @@
+title: CartSummary
+type: object
+description: Model representing summary of user's cart for order
+properties:
+  id:
+    type: string
+    format: uuid
+  location:
+    type: string
+    description: location of the source warehouse
+  product:
+    $ref: ./product-summary.yaml
+  quantity:
+    type: number
+  final_unit_price:
+    type: number
+required:
+  - id
+  - location
+  - product
+  - quantity

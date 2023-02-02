@@ -1,0 +1,54 @@
+title: BankAccounts
+type: object
+description: Model representing bank account of users
+properties:
+  id:
+    type: string
+    format: uuid
+  bank_name:
+    type: string
+    description: ''
+  account_number:
+    type: string
+  account_name:
+    type: string
+  branch_name:
+    type: string
+  user_id:
+    type: string
+    format: uuid
+  status:
+    type: string
+    enum:
+      - ACTIVE
+      - INACTIVE
+  deleted_at:
+    type: string
+    format: date-time
+    description: Soft deletion time of bank account
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - bank_name
+  - account_number
+  - account_name
+  - branch_name
+  - user_id
+  - status
+x-examples:
+  example-1:
+    id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+    bank_name: BCA
+    account_number: Joe Doe
+    account_name: '678901234'
+    branch_name: Jakarta Melawai
+    user_id: a169451c-8525-4352-b8ca-070dd449a1a5
+    status: ACTIVE
+    deleted_at: '2019-08-24T14:15:22Z'
+    created: '2019-08-24T14:15:22Z'
+    updated: '2019-08-24T14:15:22Z'

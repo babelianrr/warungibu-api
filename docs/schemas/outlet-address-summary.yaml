@@ -1,0 +1,28 @@
+title: OutletAddressSummary
+type: object
+description: Model representing outlet address for shipment
+properties:
+  label:
+    type: string
+  province:
+    type: string
+  city:
+    type: string
+  district:
+    type: string
+  subdistrict:
+    type: string
+  postal_code:
+    type: number
+  full_address:
+    type: string
+  notes:
+    type: string
+required:
+  - label
+  - province
+  - city
+  - district
+  - subdistrict
+  - postal_code
+  - full_address

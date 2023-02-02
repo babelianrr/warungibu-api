@@ -1,0 +1,48 @@
+type: object
+properties:
+  id:
+    type: string
+    example: '1234'
+  email:
+    type: string
+    format: email
+    description: User email
+    example: user@email.com
+  birthdate:
+    type: string
+    description: User Birth Date
+    example: "2021-08-01"
+  gender:
+    type: string
+    description: User Gender
+    example: Female
+  phone:
+    type: string
+    description: User Phone Number
+    example: '1234567890'
+  name:
+    type: string
+    description: User Name
+    example: John Doe
+  role:
+    type: string
+    description: User Role
+    example: BASIC_USER
+  provider:
+    type: string
+    example: manual
+  created:
+    type: object
+    example: "2021-08-01"
+  updated:
+    type: object
+    example: "2021-08-01"
+required:
+  - id
+  - email
+  - phone_number
+  - name
+  - phone
+  - birthdate
+  - role
+  - provider

@@ -1,0 +1,38 @@
+title: Shipment
+type: object
+description: Model representing a shipment for an order
+properties:
+  id:
+    type: string
+    format: uuid
+  address:
+    $ref: ../outlet-address-summary.yaml
+  courier:
+    type: string
+  track_number:
+    type: string
+  delivery_date:
+    type: string
+    format: date-time
+  receive_date:
+    type: string
+    format: date-time
+  receiver_name:
+    type: string
+  location:
+    type: string
+  price:
+    type: number
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - address
+  - courier
+  - track_number
+  - location
+  - price

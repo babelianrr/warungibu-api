@@ -1,0 +1,6 @@
+type: object
+properties:
+  user: 
+    $ref: ./subschemas/user.yaml
+  outlet:
+    - $ref: ./subschemas/outlet.yaml

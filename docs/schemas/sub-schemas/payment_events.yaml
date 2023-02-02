@@ -1,0 +1,16 @@
+title: PaymentEvents
+type: object
+description: Model representing events of payment
+properties:
+  event:
+    type: string
+    enum:
+      - CREATED
+      - PAID
+      - FAILED
+  timestamp:
+    type: string
+    format: date-time
+required:
+  - event
+  - timestamp

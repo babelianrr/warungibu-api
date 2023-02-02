@@ -1,0 +1,8 @@
+type: object
+properties:
+  role_status:
+    type: string
+    description: User Role
+    example: USER_DECLINED
+required:
+  - role_status

@@ -1,0 +1,43 @@
+type: object
+properties:
+  id:
+    type: string
+    example: '1234'
+  name:
+    type: string
+    description: docs name
+    example: SIUP
+  expired_date:
+    type: string
+    description: expired date
+    example: "2021-08-01"
+  outlet_id:
+    type: string
+    description: Outlet Id
+    example: '1234567890'
+  file_no:
+    type: string
+    description: Doc No.
+    example: '02/DAS/3980'
+  path:
+    type: string
+    description: docs url path
+    example: http://localhost:3000/test
+  status:
+    type: string
+    description: status docs
+    example: PENDING
+  created:
+    type: object
+    example: "2021-08-01"
+  updated:
+    type: object
+    example: "2021-08-01"
+required:
+  - id
+  - outlet_id
+  - expired_date
+  - name
+  - status
+  - path
+  - file_no

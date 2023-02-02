@@ -1,0 +1,17 @@
+title: BankAccountCreateUpdate
+type: object
+description: User input schema for bank account
+properties:
+  bank_name:
+    type: string
+  account_number:
+    type: string
+  account_name:
+    type: string
+  branch_name:
+    type: string
+required:
+  - bank_name
+  - account_number
+  - account_name
+  - branch_name

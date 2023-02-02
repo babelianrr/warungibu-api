@@ -1,0 +1,13 @@
+title: CategorySummary
+type: object
+description: Model representing category info for product response
+properties:
+  name:
+    type: string
+    description: Name of the category. This value should be unique
+  icon_url:
+    type: string
+    description: Path to the icon of the category
+required:
+  - name
+  - icon_url

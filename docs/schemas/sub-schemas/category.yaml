@@ -1,0 +1,23 @@
+title: Category
+type: object
+description: Model representing category of product
+properties:
+  id:
+    type: string
+    format: uuid
+  name:
+    type: string
+    description: Name of the category. This value should be unique
+  icon_url:
+    type: string
+    description: Path to the icon of the category
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - name
+  - icon_url

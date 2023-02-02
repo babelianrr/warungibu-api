@@ -1,0 +1,61 @@
+title: OutletAddress
+type: object
+description: Model representing outlet address
+properties:
+  id:
+    type: string
+    format: uuid
+  label:
+    type: string
+  receiver_name:
+    type: string
+  phone_number:
+    type: string
+  province:
+    type: string
+  city:
+    type: string
+  district:
+    type: string
+  subdistrict:
+    type: string
+  postal_code:
+    type: number
+  full_address:
+    type: string
+  notes:
+    type: string
+  status:
+    type: string
+    enum:
+      - ACTIVE
+      - INACTIVE
+  is_main:
+    type: boolean
+    description: Indicator if this address will be main address for the user. Default is false except where there's only one address
+  user_id:
+    type: string
+    format: uuid
+    description: ''
+  deleted_at:
+    type: string
+    format: date-time
+    description: Soft deletion timestamp
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - label
+  - receiver_name
+  - phone_number
+  - province
+  - city
+  - district
+  - subdistrict
+  - postal_code
+  - full_address
+  - status

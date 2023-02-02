@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Tanda Terima</title>
+        <style>
+            .font-small {
+                font-size: 12px;
+            }
+
+            .border {
+                border: 1px solid black;
+            }
+
+            .text-right {
+                text-align: right;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-left {
+                text-align: left;
+            }
+
+            .p-4 {
+                padding: 16px;
+            }
+
+            .p-2 {
+                padding: 8px;
+            }
+
+            .px-2 {
+                padding-right: 8px;
+                padding-left: 8px;
+            }
+
+            .mb-4 {
+                margin-bottom: 16px;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            table td,
+            table td * {
+                vertical-align: top;
+            }
+
+            body {
+                min-height: 100%;
+                min-width: 100%;
+                font-size: 14px;
+            }
+
+            .product-list td,
+            .product-list th {
+                border: 1px solid #374151;
+                padding: 8px;
+            }
+
+            .product-list th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #2394ba;
+                color: white;
+            }
+
+            .order_detail tr {
+                border: 1px solid #374151;
+                padding: 8px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <table width="100%">
+            <tr style="margin-bottom: 16px">
+                <td width="60%" style="padding-top: 20px" class="p-2">PT SELARAS SINERGI INDONESIA</td>
+                <td width="40%" class="text-right">
+                    <table width="100%">
+                        <tr>
+                            <td width="50%" style="padding-top: 20px" class="p-2">TANDA TERIMA TUKAR FAKTUR</td>
+                            <td width="50%" class="px-2">
+                                <img
+                                    src="https://nrcqmmgoobssxyudfvxm.supabase.in/storage/v1/object/public/dnr-asset/dnr_logo_2.png"
+                                    width="{100}"
+                                    height="{40}"
+                                    alt="DNR"
+                                    class="mb-4"
+                                />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <p class="font-small">
+                        {{ mainAddress.full_address }} {{ mainAddress.city }} {{ mainAddress.province }}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 50%"></td>
+                <td style="width: 50%">
+                    <table>
+                        <tr>
+                            <td class="p-2 font-small">Cust. Id</td>
+                            <td class="p-2 font-small">: {{ user.customer_id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 font-small">Nama</td>
+                            <td class="p-2 font-small">: {{ outlet.name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 font-small">Alamat</td>
+                            <td class="p-2 font-small">
+                                : {{ mainAddress.full_address }}<br />{{ mainAddress.city }}, {{ mainAddress.province }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="product-list" style="margin-bottom: 16px; width: 98%; border-collapse: collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-4">No</th>
+                                <th class="p-4">No Faktur</th>
+                                <th class="p-4">Tgl Faktur</th>
+                                <th class="p-4">Nilai Faktur</th>
+                                <th class="p-4">Tgl Jatuh Tempo</th>
+                                <th class="p-4">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each items}}
+                            <tr>
+                                <td class="p-4">{{ @index }}</td>
+                                <td class="p-4">{{ this.payment.invoice_no }}</td>
+                                <td class="p-4">{{ this.inv_date }}</td>
+                                <td class="p-4">{{ this.subTotal }}</td>
+                                <td class="p-4">{{ this.expired }}</td>
+                                <td class="p-4">{{ this.notes }}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2 font-small" style="padding-top: 50px; padding-bottom: 50px">
+                    <span
+                        >Note : Apabila faktur asli sudah diterima apotek, maka tanda terima faktur ini berlaku sebagai
+                        faktur beli penagihan</span
+                    >
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <table width="100%">
+                        <tr>
+                            <td width="33%" class="text-center">
+                                <p>Diserahkan Oleh</p>
+                                <p style="margin-top: 100px">
+                                    ( <span style="margin-right: 100px; margin-left: 100px"></span> )
+                                </p>
+                            </td>
+                            <td width="33%" class="text-center">
+                                <p>Diterima Oleh</p>
+                                <p style="margin-top: 100px">
+                                    ( <span style="margin-right: 100px; margin-left: 100px"></span> )
+                                </p>
+                            </td>
+                            <td width="34%" class="">
+                                <p>Jakarta, {{ now }}</p>
+                                <p>Tanggal Bayar : {{ paid }}</p>
+                                <br />
+
+                                <p>Rekening Bank</p>
+                                <p>Rek BCA - 0060585806</p>
+                                <p>PT SELARAS SINERGI INDONESIA</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

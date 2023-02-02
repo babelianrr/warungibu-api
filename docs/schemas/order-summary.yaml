@@ -1,0 +1,39 @@
+title: OrderSummary
+type: object
+description: Model representing order
+properties:
+  id:
+    type: string
+    format: uuid
+  transaction_number:
+    type: string
+  order_events:
+    type: array
+    nullable: true
+  payment:
+    $ref: ./payment-summary.yaml
+  carts:
+    type: array
+    items:
+      $ref: ./cart-summary.yaml
+  status:
+    type: string
+    enum:
+      - OREDERED
+      - PAID
+      - CANCELED
+      - PROCESSED
+      - COMPLETED
+      - EXPIRED
+      - DELIVERED
+  expired_at:
+    type: string
+    format: date-time
+  created:
+    type: string
+    format: date-time
+required:
+  - id
+  - transaction_number
+  - payment
+  - status

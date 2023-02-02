@@ -1,0 +1,42 @@
+title: ProductCreate
+type: object
+description: User input schema for adding new product
+properties:
+  name:
+    type: string
+    description: Product title
+  picture:
+    type: object
+    description: Path to picture file
+  sku_number:
+    type: string
+    description: Product's SKU number
+  brand:
+    type: string
+    description: Product's brand
+  description:
+    type: string
+    description: Description about the product
+  weight:
+    type: integer
+    description: Weight of the product in grams
+  price:
+    type: integer
+    description: Price per unit of product
+  discount_percentage:
+    type: integer
+    description: Percentage of the discount. Fill one of this or the discount_price.
+  discount_price:
+    type: integer
+    description: Discount amount. Fill one of this or the discount_percentage.
+  categories:
+    type: array
+    description: Array of categories name
+    items:
+      type: string
+required:
+  - name
+  - sku_number
+  - brand
+  - weight
+  - price

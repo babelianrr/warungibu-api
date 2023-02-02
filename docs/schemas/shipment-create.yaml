@@ -1,0 +1,18 @@
+title: ShipmentCreate
+type: object
+description: Model representing user input when creating shipment
+properties:
+  address_id:
+    type: string
+    format: uuid
+  courier:
+    type: string
+  location:
+    type: string
+  price:
+    type: number
+required:
+  - address_id
+  - courier
+  - location
+  - price

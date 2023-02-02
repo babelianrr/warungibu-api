@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "lib": ["es6"],
+        "types": ["reflect-metadata", "node", "express"],
+        "allowJs": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "noImplicitAny": false, //TODO: change this to true once entities is defined
+        "outDir": "./dist/",
+        "baseUrl": ".",
+        "paths": {
+            "*": ["node_modules/*", "vendor/*"],
+            "src/*": ["./src/*"]
+        },
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "target": "es6",
+        "typeRoots": ["node_modules/@types"]
+    },
+    "exclude": ["clients", "dist", "scripts"]
+}

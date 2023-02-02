@@ -1,0 +1,18 @@
+title: OrderCreate
+type: object
+description: Model representing user input to create order
+properties:
+  shipment:
+    $ref: ./shipment-create.yaml
+  payment:
+    $ref: ./payment-create.yaml
+  carts:
+    type: array
+    description: Array of carts id
+    items:
+      type: string
+      format: uuid
+required:
+  - shipment
+  - payment
+  - carts

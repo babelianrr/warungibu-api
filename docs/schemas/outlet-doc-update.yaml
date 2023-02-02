@@ -1,0 +1,21 @@
+type: object
+properties:
+  name:
+    type: string
+    description: docs name
+    example: SIUP
+  expired_date:
+    type: object
+    description: expired date
+    example: 2021-06-14T00:00:0000z
+  file_no:
+    type: string
+    description: Doc No.
+    example: '02/DAS/3980'
+  file:
+    type: string
+    format: binary
+required:
+  - name
+  - type
+  - file_no  

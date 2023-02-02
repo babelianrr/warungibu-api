@@ -1,0 +1,18 @@
+title: stock-create-update
+type: object
+description: Model representing user input for stock
+properties:
+  product_id:
+    type: string
+  location:
+    type: string
+    description: Location of the warehouse
+  stock_in:
+    type: number
+    description: Total stock added to this location
+  stock_out:
+    type: number
+    description: Total stock added to this location
+required:
+  - product_id
+  - location

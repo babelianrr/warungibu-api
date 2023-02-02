@@ -1,0 +1,14 @@
+type: object
+description: User Session
+properties:
+  token:
+    type: string
+  refresh_token:
+    type: string
+required:
+  - token
+  - refresh_token
+x-examples:
+  example-1:
+    token: SOME_TOKEN
+    refresh_token: SOME_REFRESH_TOKEN

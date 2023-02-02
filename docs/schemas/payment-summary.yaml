@@ -1,0 +1,14 @@
+title: PaymentSummary
+type: object
+description: Model representing summary payment for an order summary
+properties:
+  total_price:
+    type: number
+  payment_method:
+    type: string
+  status:
+    type: string
+required:
+  - total_price
+  - payment_method
+  - status

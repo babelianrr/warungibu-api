@@ -1,0 +1,33 @@
+type: object
+properties:
+  email:
+    type: string
+    format: email
+    description: User email
+    example: user@email.com
+  password:
+    type: string
+    description: User password
+  birthdate:
+    type: string
+    description: User Birth Date
+    example: "2021-10-12"
+  gender:
+    type: string
+    description: User Gender
+    example: Female
+  phone:
+    type: string
+    description: User Phone Number
+    example: '1234567890'
+  name:
+    type: string
+    description: User Name
+    example: John Doe
+required:
+  - email
+  - phone_number
+  - password
+  - name
+  - phone
+  - birthdate

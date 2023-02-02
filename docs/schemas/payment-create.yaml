@@ -1,0 +1,11 @@
+title: PaymentCreate
+type: object
+description: Model representing user input when creating payment
+properties:
+  total_price:
+    type: number
+  payment_method:
+    type: string
+required:
+  - total_price
+  - payment_method

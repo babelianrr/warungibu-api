@@ -1,0 +1,35 @@
+title: ProductSummary
+type: object
+description: Model representing summary information of product for carts & order
+properties:
+  name:
+    type: string
+    description: Product title
+  picture_url:
+    type: string
+    description: Path to picture file
+  slug:
+    type: string
+  unit:
+    type: integer
+    description: Unit of the product
+  price:
+    type: integer
+    description: Price per unit of product
+  discount_percentage:
+    type: integer
+    description: Percentage of the discount
+  discount_price:
+    type: integer
+    description: Discount amount
+  discount_type:
+    type: string
+    enum:
+      - PRICE
+      - PERCENTAGE
+    description: Type of the discount to be shown
+required:
+  - name
+  - slug
+  - weight
+  - price

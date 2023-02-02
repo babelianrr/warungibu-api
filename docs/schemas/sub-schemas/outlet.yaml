@@ -1,0 +1,39 @@
+type: object
+properties:
+  id:
+    type: string
+    example: '1234'
+  name:
+    type: string
+    description: User name
+    example: John
+  type:
+    type: string
+    description: Outlet Type
+    example: Apotek
+  npwp:
+    type: string
+    description: Outlet NPWP / Nomor Pokok Wajib Pajak
+    example: '1234567890'
+  phone:
+    type: string
+    description: Outlet Mobile Phone
+    example: '1234567890'
+  telp:
+    type: string
+    description: Outlet Home Phone
+    example: John Doe
+  created:
+    type: object
+    example: "2021-08-01"
+  updated:
+    type: object
+    example: "2021-08-01"
+required:
+  - id
+  - name
+  - type
+  - npwp
+  - telp
+  - phone
+  - oulet_docs

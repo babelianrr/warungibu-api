@@ -1,0 +1,8 @@
+title: OrderUpdate
+type: object
+description: Model representing user input to update order
+properties:
+  payment:
+    $ref: ./payment-create.yaml
+required:
+  - payment

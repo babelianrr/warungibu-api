@@ -1,0 +1,32 @@
+title: Stock
+type: object
+description: Model representing product's stock
+properties:
+  id:
+    type: string
+    format: uuid
+  product_id:
+    type: string
+  location:
+    type: string
+    description: Location of the warehouse
+  stock_in:
+    type: number
+    description: Total stock added to this location
+    default: 0
+  stock_out:
+    type: number
+    description: Total stock added to this location
+    default: 0
+  created:
+    type: string
+    format: date-time
+  updated:
+    type: string
+    format: date-time
+required:
+  - id
+  - product_id
+  - location
+  - stock_in
+  - stock_out
