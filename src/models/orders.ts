@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/no-cycle */
 import {
     Entity,
@@ -15,7 +14,7 @@ import {
 
 import { EChannel } from 'src/clients/xendit/xendit.interfaces';
 import { Users } from './Users';
-import { EPaymentMethod, EPaymentType, Payments } from './Payments';
+import { EPaymentMethod, Payments } from './Payments';
 import { Shipments } from './shipments';
 import { Carts } from './carts';
 
@@ -47,6 +46,10 @@ export interface IOrderCreateRequest {
 }
 
 export interface IPpobCreateRequest {
+    shipment?: {
+        address_id?: string;
+        location?: string;
+    };
     payment: {
         total_price: number;
         payment_type?: string;
@@ -55,8 +58,9 @@ export interface IPpobCreateRequest {
         account_number?: string;
         payment_channel?: EChannel;
     };
+    carts?: string[];
     user_id: string;
-    ref_id?: string;
+    ref_id: string;
 }
 
 export interface IOrderUpdateRequest {

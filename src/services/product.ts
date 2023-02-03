@@ -21,7 +21,6 @@ import { ProductImageRepository } from 'src/libs/database/repository/product_ima
 import { BASE_URL } from 'src/config';
 import { IProductReviewRepo } from 'src/libs/database/repository/product_review';
 import { ERoleStatus } from 'src/models/Users';
-import { PromotionsProducts } from 'src/models/promotion-product';
 import { IOrderService } from './order';
 import { ICartRepo } from './cart';
 
@@ -30,6 +29,7 @@ export interface IProductRepo {
     findOne(query: any): Promise<Products>;
     findTopProduct(limit?: number): Promise<Products[]>;
     findByProductSku(product_sku: string): Promise<Products>;
+    findPpobByProductSku(product_sku: string): Promise<Products>;
     create(productData: any): Products;
     save(product: Products): Promise<Products>;
     countAll(isAdmin: boolean, query?: any): Promise<any>;
@@ -42,6 +42,7 @@ export interface IProductRepo {
     findPromotionForProductById(productid: string): Promise<any[]>;
     findProductImagesForProductById(productid: string): Promise<any[]>;
     findPromotionHeaderForProductById(productid: string): Promise<any[]>;
+    deleteSync(payload: string[]): Promise<any>;
 }
 
 export class ProductService {
@@ -219,6 +220,10 @@ export class ProductService {
         return this.repository.findByProductSku(product_sku);
     }
 
+    public async findPpobByProductSku(product_sku: string): Promise<Products> {
+        return this.repository.findPpobByProductSku(product_sku);
+    }
+
     public async countAll(isAdmin: boolean, query?: any): Promise<any> {
         return this.repository.countAll(isAdmin, query);
     }
@@ -293,14 +298,16 @@ export class ProductService {
         }
 
         const newCategories = [];
-        console.log('input categories', productInput.categories);
-        for (let i = 0; i < productInput.categories.length; i += 1) {
-            // if (!categories.find((c) => c.name === input.categories[i]) || categories.length === 0) {
-            const cat = await this.categoryRepository.findByName(productInput.categories[i]);
-            if (cat) {
-                newCategories.push(cat);
+        if (productInput.categories) {
+            console.log('input categories', productInput.categories);
+            for (let i = 0; i < productInput.categories.length; i += 1) {
+                // if (!categories.find((c) => c.name === input.categories[i]) || categories.length === 0) {
+                const cat = await this.categoryRepository.findByName(productInput.categories[i]);
+                if (cat) {
+                    newCategories.push(cat);
+                }
+                // }
             }
-            // }
         }
 
         const newProductData = {
@@ -335,14 +342,16 @@ export class ProductService {
 
         const { categories } = product;
         const newCategories = [];
-        console.log('input categories', input.categories);
-        for (let i = 0; i < input.categories.length; i += 1) {
-            // if (!categories.find((c) => c.name === input.categories[i]) || categories.length === 0) {
-            const cat = await this.categoryRepository.findByName(input.categories[i]);
-            if (cat) {
-                newCategories.push(cat);
+        if (input.categories) {
+            console.log('input categories', input.categories);
+            for (let i = 0; i < input.categories.length; i += 1) {
+                // if (!categories.find((c) => c.name === input.categories[i]) || categories.length === 0) {
+                const cat = await this.categoryRepository.findByName(input.categories[i]);
+                if (cat) {
+                    newCategories.push(cat);
+                }
+                // }
             }
-            // }
         }
 
         const newProductData = {
@@ -497,5 +506,9 @@ export class ProductService {
             .replace(/\s+/g, '-') // collapse whitespace and replace by -
             .replace(/-+/g, '-'); // collapse dashes
         return `${slug}-${new Date().getTime()}`;
+    }
+
+    public async deleteSync(payload: string[]): Promise<any> {
+        return this.repository.deleteSync(payload);
     }
 }

@@ -5,7 +5,7 @@ import qs from 'querystring';
 import _ from 'underscore';
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Products, IProductCreateRequest, IProductUpdateRequest } from 'src/models/products';
+import { Products, IProductCreateRequest, IProductUpdateRequest, EProductTypes } from 'src/models/products';
 import { BASE_URL } from 'src/config';
 import {
     authentication,
@@ -154,7 +154,7 @@ export class ProductController {
             for (let i = 0; i < req.body.branches.length; i += 1) {
                 const branch = {
                     branch_code: '1204',
-                    location: 'Cakung',
+                    location: 'Gudang',
                     stock: req.body.branches[i]
                 };
                 branches.push(branch);
@@ -175,6 +175,7 @@ export class ProductController {
                 categories: req.body.categories,
                 price: req.body.price,
                 sap_price: req.body.price,
+                product_type: EProductTypes.GENERAL,
                 images,
                 branches
             };

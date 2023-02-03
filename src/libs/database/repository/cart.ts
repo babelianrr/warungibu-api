@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { startOfDay } from 'date-fns';
 import { Carts } from 'src/models/carts';
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm';
 
 @EntityRepository(Carts)
 export class CartRepository extends Repository<Carts> {
@@ -49,14 +49,26 @@ export class CartRepository extends Repository<Carts> {
             .getOne();
     }
 
-    findExistingInvoiceCart(productId: string, orderId: string, location: string) {
-        return this.createQueryBuilder('cart')
-            .leftJoinAndSelect('cart.product', 'product')
-            .where('cart.order_id = :order_id', { order_id: orderId })
-            .andWhere('cart.product_id = :product_id', { product_id: productId })
-            .andWhere('cart.location = :location', { location })
-            .andWhere('cart.status = :status', { status: 'ORDERED' })
-            .getOne();
+    findExistingInvoiceCart(orderId: string, location: string, productId?: string, ppobId?: string) {
+        let qb: SelectQueryBuilder<Carts>;
+        if (productId) {
+            qb = this.createQueryBuilder('cart')
+                .leftJoinAndSelect('cart.product', 'product')
+                .where('cart.order_id = :order_id', { order_id: orderId })
+                .andWhere('cart.location = :location', { location })
+                .andWhere('cart.status = :status', { status: 'ORDERED' })
+                .andWhere('cart.product_id = :product_id', { product_id: productId });
+        }
+        if (ppobId) {
+            qb = this.createQueryBuilder('cart')
+                .leftJoinAndSelect('cart.product', 'product')
+                .where('cart.order_id = :order_id', { order_id: orderId })
+                .andWhere('cart.location = :location', { location })
+                .andWhere('cart.status = :status', { status: 'ORDERED' })
+                .andWhere('cart.ppob_id = :ppob_id', { ppob_id: ppobId });
+        }
+        console.log(qb.getSql());
+        return qb.getOne();
     }
 
     findCompleteCartsByProductForToday(userId: string, productId: string) {

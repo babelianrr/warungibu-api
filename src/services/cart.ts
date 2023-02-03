@@ -10,8 +10,7 @@ import { IUserRepo } from 'src/libs/database/repository/user';
 import { IProductRepo } from 'src/services/product';
 import { ProductStatuses } from 'src/models/products';
 import { MAX_CART_QUANTITY } from 'src/config';
-import { compareAsc } from 'date-fns';
-import { BranchRepository } from 'src/libs/database/repository/branch';
+import { IPpobRepo } from 'src/libs/database/repository/ppob';
 import { BranchService } from './branch';
 
 export interface ICartRepo {
@@ -105,10 +104,7 @@ export class CartService {
         }
 
         const product = await this.productRepository.findOne(cartData.product_id);
-        const user = await this.userRepository.findOneWithOutlets({
-            where: { id: cartData.user_id },
-            relations: ['outlets']
-        });
+        const user = await this.userRepository.findOne(cartData.user_id);
 
         if (!product) {
             throw new ErrorObject(ErrorCodes.PRODUCT_NOT_FOUND_ERROR, 'Produk tidak ditemukan');

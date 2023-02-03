@@ -32,6 +32,11 @@ export enum DiscountTypes {
     PERCENTAGE = 'PERCENTAGE'
 }
 
+export enum EProductTypes {
+    GENERAL = 'GENERAL',
+    PPOB = 'PPOB'
+}
+
 export interface IProductCreateRequest {
     name: string;
     picture_url?: string;
@@ -43,10 +48,13 @@ export interface IProductCreateRequest {
     valid_to: string;
     categories?: string[];
     branches: any[];
+    product_type?: EProductTypes;
+    status?: string;
 }
 
 export interface IProductUpdateRequest {
     id: string;
+    name?: string;
     description?: string;
     unit?: string;
     discount_percentage?: number;
@@ -57,6 +65,7 @@ export interface IProductUpdateRequest {
     discount_type?: string;
     branches?: any[];
     dpf?: string;
+    price?: number;
 }
 
 @Entity()
@@ -159,6 +168,9 @@ export class Products {
 
     @Column({ type: 'timestamptz' })
     valid_to: string;
+
+    @Column({ type: 'varchar' })
+    product_type: EProductTypes;
 
     @Column({ type: 'timestamptz' })
     discount_end_date: string;
