@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { Products } from 'src/models/products';
+import { EProductTypes, ProductStatuses, Products } from 'src/models/products';
 import { PromotionsProducts } from 'src/models/promotion-product';
 import { EntityRepository, Repository, Brackets, getRepository, getManager } from 'typeorm';
 import { Promotions } from 'src/models/promotion';
@@ -25,29 +25,29 @@ export interface IQueryProducts {
 @EntityRepository(Products)
 export class ProductRepository extends Repository<Products> {
     findWithFilter(query: IQueryProducts, isAdmin: boolean) {
-        const selectField = [
-            'product.id',
-            'product.name',
-            'product.picture_url',
-            'product.slug',
-            'product.unit',
-            'product.price',
-            'product.discount_percentage',
-            'product.discount_price',
-            'product.discount_type',
-            'product.valid_to',
-            'product.description',
-            'product.sku_number',
-            'product.sap_price',
-            'product.dpf',
-            'product.created_at'
-            // 'product.categories'
-        ];
         const ormQuery = this.createQueryBuilder('product')
-            .select(selectField)
+            .select([
+                'product.id',
+                'product.name',
+                'product.picture_url',
+                'product.slug',
+                'product.unit',
+                'product.price',
+                'product.discount_percentage',
+                'product.discount_price',
+                'product.discount_type',
+                'product.valid_to',
+                'product.description',
+                'product.sku_number',
+                'product.sap_price',
+                'product.dpf',
+                'product.created_at',
+                'product.product_type'
+            ])
             .leftJoinAndSelect('product.images', 'images.url')
             .leftJoinAndSelect('product.branches', 'branches')
-            .where('product.status = :status', { status: 'ACTIVE' })
+            .where('product.status = :status', { status: ProductStatuses.ACTIVE })
+            .andWhere('product.product_type = :type', { type: EProductTypes.GENERAL })
             .orderBy('product.created_at', 'DESC');
 
         const filteredQuery = this.filterQuery(ormQuery, query, isAdmin, {
@@ -66,6 +66,13 @@ export class ProductRepository extends Repository<Products> {
         return this.createQueryBuilder('product')
             .leftJoinAndSelect('product.branches', 'branches')
             .where('product.sku_number = :sku', { sku: product_sku })
+            .getOne();
+    }
+
+    findPpobByProductSku(product_sku: string) {
+        return this.createQueryBuilder('product')
+            .where('product.sku_number = :sku', { sku: product_sku })
+            .andWhere('product.product_type = :type', { type: EProductTypes.PPOB })
             .getOne();
     }
 
@@ -362,5 +369,14 @@ export class ProductRepository extends Repository<Products> {
             .andWhere(':nowDate <= promotions.end_date', { nowDate: new Date().toISOString().slice(0, 10) })
             .orderBy('promotions_products.qty_min')
             .getMany();
+    }
+
+    deleteSync(payload: string[]): Promise<any> {
+        return this.createQueryBuilder()
+            .delete()
+            .from(Products)
+            .where('sku_number NOT IN (:payload)', { payload })
+            .andWhere('product_type = :type', { type: EProductTypes.PPOB })
+            .execute();
     }
 }

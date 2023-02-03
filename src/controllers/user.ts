@@ -1,3 +1,6 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -482,6 +485,24 @@ export class UserController {
         }
     }
 
+    private fixWidth(worksheet: xlsx.WorkSheet) {
+        const data = xlsx.utils.sheet_to_json<any>(worksheet);
+        const colLengths = Object.keys(data[0]).map((k) => k.toString().length);
+        for (const d of data) {
+            Object.values(d).forEach((element: any, index) => {
+                const { length } = element.toString();
+                if (colLengths[index] < length) {
+                    colLengths[index] = length;
+                }
+            });
+        }
+        worksheet['!cols'] = colLengths.map((l) => {
+            return {
+                wch: l
+            };
+        });
+    }
+
     async exportExcelUser(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const data = await this.userService.getAllUserNoFilter(req.query);
@@ -506,6 +527,8 @@ export class UserController {
             const workSheetData = [sheetColumnName, ...users];
 
             const workSheet = xlsx.utils.aoa_to_sheet(workSheetData);
+
+            this.fixWidth(workSheet);
 
             xlsx.utils.book_append_sheet(workBook, workSheet);
 

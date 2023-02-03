@@ -8,7 +8,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-throw-literal */
-import { addDays, compareAsc, format, subDays } from 'date-fns';
+import { addDays, format, subDays } from 'date-fns';
 import { id } from 'date-fns/locale';
 import pdf from 'pdf-creator-node';
 import fs from 'fs';
@@ -18,12 +18,7 @@ import { ErrorCodes } from 'src/libs/errors';
 import { ErrorObject } from 'src/libs/error-object';
 import { DNR } from 'src/clients/dnr/dnr';
 import { Xendit } from 'src/clients/xendit/xendit';
-import {
-    EChannel,
-    ICardPaymentChargeOption,
-    ICardPaymentChargeResponse,
-    IPaymentCallback
-} from 'src/clients/xendit/xendit.interfaces';
+import { EChannel, ICardPaymentChargeOption, IPaymentCallback } from 'src/clients/xendit/xendit.interfaces';
 import {
     IOrderCreateRequest,
     IOrderEvents,
@@ -40,26 +35,16 @@ import {
     IBuildPaymentData,
     IPaymentAmount,
     IPaymentData,
-    ORDER_DISCOUNT_PERCENTAGE,
     Payments,
-    TAX_PERCENTAGE,
-    VA_FEE
+    TAX_PERCENTAGE
 } from 'src/models/Payments';
-import {
-    Carts,
-    CartStatuses,
-    ICartCreateRequest,
-    ICartUpdateRequest,
-    IInvocieCartCreateRequest,
-    IInvoiceCartUpdateRequest
-} from 'src/models/carts';
+import { Carts, CartStatuses, IInvocieCartCreateRequest, IInvoiceCartUpdateRequest } from 'src/models/carts';
 import { Shipments } from 'src/models/shipments';
 import { OutletAddresses } from 'src/models/Outlet-address';
 
 import { IUserRepo } from 'src/libs/database/repository/user';
 import { ICartRepo } from 'src/services/cart';
 import { IOutletAddressRepo } from 'src/libs/database/repository/outlet_address';
-import { isAddresJabodetabek } from 'src/libs/helpers/jabodetabek-validation';
 import { MAX_CART_QUANTITY } from 'src/config';
 import { IProductRepo } from 'src/services/product';
 import { XenditCard } from 'src/clients/xendit/xenditCard';
@@ -69,7 +54,6 @@ import { ProductStatuses } from 'src/models/products';
 import { ERoleStatus } from 'src/models/Users';
 import { Branches } from 'src/models/branches';
 import { BranchRepository } from 'src/libs/database/repository/branch';
-import { PaymentTermsRepository } from 'src/libs/database/repository/payment-terms';
 import { generateTransactionNumber } from 'src/libs/helpers/generate-trx-number';
 
 export interface IOrderService {
@@ -390,13 +374,50 @@ export class OrderService implements IOrderService {
             throw new ErrorObject(ErrorCodes.CREATE_ORDER_ERROR, 'Akun tidak ditemukan');
         }
 
-        let productPrice = orderData.payment.total_price;
+        const carts = [];
+        let productPrice = 0;
+
+        for (let i = 0; i < orderData.carts.length; i += 1) {
+            const cartId = orderData.carts[i]; // .id
+            const cart = await this.cartRepository.findOneForUser(user.id, cartId);
+
+            if (!cart) {
+                throw new ErrorObject(ErrorCodes.CREATE_ORDER_ERROR, `Keranjang tidak ditemukan`);
+            }
+
+            const productSku = cart.product.sku_number;
+            const { quantity } = cart;
+
+            let inBranch = await this.branchRepository.findStockByProductSku(productSku);
+            if (!inBranch) {
+                throw new ErrorObject(
+                    ErrorCodes.PRODUCT_NOT_IN_STOCK,
+                    `data tidak tersedia untuk produk ${cart.product.name}`
+                );
+            }
+
+            if (Number(inBranch.stock) < quantity) {
+                throw new ErrorObject(
+                    ErrorCodes.CREATE_ORDER_ERROR,
+                    `Stok untuk produk ${cart.product.name} tidak mencukupi`
+                );
+            }
+
+            cart.final_unit_price = cart.quantity * cart.product.price;
+            cart.unit_price = cart.product.price;
+            cart.discount_percentage = 0;
+
+            productPrice += cart.final_unit_price;
+            carts.push(cart);
+
+            await this.branchRepository.updateStockSubs(inBranch, cart.product.sku_number, cart.quantity);
+        }
 
         // deduct loan limit
         const userLoanLimit = user.loan_limit;
 
         if (productPrice > userLoanLimit) {
-            throw new ErrorObject(ErrorCodes.CREATE_ORDER_ERROR, `Limit kredit tidak mencukupi.`);
+            throw new ErrorObject(ErrorCodes.CREATE_ORDER_ERROR, 'Limit kredit tidak mencukupi.');
         }
 
         await this.userRepository.changeLoanLimit(orderData.user_id, userLoanLimit - productPrice);
@@ -404,13 +425,12 @@ export class OrderService implements IOrderService {
         // create order
         const expirationdate = addDays(new Date(), 30);
 
-        const newOrderData = {
+        let newOrder = this.repository.create({
             user_id: orderData.user_id,
             transaction_number: orderData.ref_id,
             status: OrderStatuses.COMPLETED,
             expired_at: expirationdate
-        };
-        let newOrder = this.repository.create(newOrderData);
+        });
 
         // create payment
         const paymentAmount = this.calculatePayment(
@@ -419,12 +439,28 @@ export class OrderService implements IOrderService {
             productPrice
         );
 
-        const paymentData = this.buildPaymentData(paymentAmount, orderData.payment, EPaymentEventType.CREATED);
+        const paymentData = this.buildPaymentData(paymentAmount, orderData.payment, EPaymentEventType.PAID);
         const payment = this.paymentRepository.create(paymentData);
+        const shipment = this.shipmentRepository.create({
+            outlet_types_id: user.outlet_types_id,
+            courier: 'Default',
+            location: orderData.shipment.location,
+            price: 0,
+            track_number: 'Default'
+        });
 
+        newOrder.shipment = shipment;
         newOrder.payment = payment;
         newOrder = await this.repository.save(newOrder);
         await this.repository.save(newOrder);
+
+        carts.forEach(async (cart) => {
+            cart.status = CartStatuses.ORDERED;
+            cart.order_id = newOrder.id;
+            cart.order = newOrder;
+
+            await this.cartRepository.save(cart);
+        });
 
         newOrder.order_events = this.addOrderEvents(newOrder, user.email);
 
@@ -983,7 +1019,7 @@ export class OrderService implements IOrderService {
     buildPaymentData(
         paymentAmount: IPaymentAmount,
         paymentInfo: IBuildPaymentData,
-        event: EPaymentEventType.CREATED | EPaymentEventType.UPDATED
+        event: EPaymentEventType
     ): IPaymentData {
         const paymentData: IPaymentData = {
             ...paymentAmount,

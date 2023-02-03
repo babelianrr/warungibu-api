@@ -9,7 +9,7 @@ export interface IPpobRepo {
     findOneWithOption(options: any): Promise<Ppob>;
     insertData(payload: any): Promise<any>;
     upsertData(payload: any): Promise<any>;
-    update(payload: any): Promise<any>;
+    updateData(payload: any, id: string): Promise<any>;
     delete(id: string): Promise<any>;
 }
 

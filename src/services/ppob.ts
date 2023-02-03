@@ -7,7 +7,6 @@
 import axios from 'axios';
 import Digiflazz from 'digiflazz';
 import _ from 'lodash';
-import md5 from 'md5';
 import { DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY } from 'src/config';
 import { ErrorObject } from 'src/libs/error-object';
 import { Ppob } from 'src/models/ppobs';
@@ -81,14 +80,11 @@ export class PpobService {
         return data;
     }
 
-    private createSign(prompt: string) {
-        return md5(`${DIGIFLAZZ_USERNAME}${DIGIFLAZZ_API_KEY}${prompt}`);
-    }
-
     public async syncDataAdmin(): Promise<any> {
         const result = await this.fetchDigiflazz();
 
         let data: any[];
+        let notRemovedBicartData: string[];
 
         const existingData = await this.findForAdmin();
 
@@ -131,7 +127,7 @@ export class PpobService {
 
             const checkDiff = _.difference(datas, bicartData);
 
-            const notRemovedBicartData = await Promise.all(
+            notRemovedBicartData = await Promise.all(
                 checkDiff.map((v: any, k: number) => {
                     return v.buyer_sku_code;
                 })
@@ -146,7 +142,7 @@ export class PpobService {
             );
         }
 
-        return data;
+        return { data, kept_data: notRemovedBicartData };
     }
 
     private hashCustomerName(name: string, len?: number): string {

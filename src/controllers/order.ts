@@ -1,3 +1,6 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable import/namespace */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -11,6 +14,8 @@ import { IOrderService } from 'src/services/order';
 import { INotificationService } from 'src/services/notification';
 import { NotificationMessage } from 'src/models/Notifications';
 import { EPaymentStatus } from 'src/models/Payments';
+import { Carts } from 'src/models/carts';
+import { Orders } from 'src/models/orders';
 import { authentication, adminAuthentication, IRequestExtra } from './middlewares/authentication';
 
 export class OrderController {
@@ -430,6 +435,24 @@ export class OrderController {
         }
     }
 
+    private fixWidth(worksheet: xlsx.WorkSheet) {
+        const data = xlsx.utils.sheet_to_json<any>(worksheet);
+        const colLengths = Object.keys(data[0]).map((k) => k.toString().length);
+        for (const d of data) {
+            Object.values(d).forEach((element: any, index) => {
+                const { length } = element.toString();
+                if (colLengths[index] < length) {
+                    colLengths[index] = length;
+                }
+            });
+        }
+        worksheet['!cols'] = colLengths.map((l) => {
+            return {
+                wch: l
+            };
+        });
+    }
+
     public async exportExcelOrder(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const query = qs.parse(req.url.substring(14));
@@ -443,15 +466,20 @@ export class OrderController {
                 }).format(number);
             };
 
-            const users = data.map((v) => [
-                v.transaction_number,
-                v.user.name,
-                v.carts[0].product.name,
-                currency(v.payment.total_amount),
-                v.payment.status === EPaymentStatus.SUCCESS ? 'Lunas' : 'Belum Lunas',
-                v.status,
-                v.created_at
-            ]);
+            const users = data.map((v: Orders) => {
+                const productNames = v.carts.map((o: Carts) => {
+                    return o.product.name;
+                });
+                return [
+                    v.transaction_number,
+                    v.user.name,
+                    productNames.join(', '),
+                    currency(v.payment.total_amount),
+                    v.payment.status === EPaymentStatus.SUCCESS ? 'Lunas' : 'Belum Lunas',
+                    v.status,
+                    v.created_at
+                ];
+            });
 
             const filePath = `${process.cwd()}/public/tmp/${query.client}_${query.start_date}_${
                 query.end_date
@@ -472,6 +500,8 @@ export class OrderController {
             const workSheetData = [sheetColumnName, ...users];
 
             const workSheet = xlsx.utils.aoa_to_sheet(workSheetData);
+
+            this.fixWidth(workSheet);
 
             xlsx.utils.book_append_sheet(workBook, workSheet);
 
