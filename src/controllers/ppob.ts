@@ -17,7 +17,7 @@ interface IPpobService {
     findOne(options?: any): Promise<Ppob>;
     findOneByIdForAdmin(id: string): Promise<Ppob>;
     findForUser(category: string): Promise<Ppob[]>;
-    findCategoryForUser(): Promise<Ppob[]>;
+    findCategoryForUser(clause?: any): Promise<Ppob[]>;
     checkoutForUser(customer_no: string, buyer_sku_code?: string): Promise<any>;
     transactionByUser(buyer_sku_code: string, customer_no: string): Promise<any>;
     checkTransactionByUser(payload: any): Promise<any>;
@@ -94,7 +94,7 @@ export class PpobController {
 
     public async getCategoryForUser(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const data = await this.ppobService.findCategoryForUser();
+            const data = await this.ppobService.findCategoryForUser(req.query.category);
 
             return res.status(200).json({ data });
         } catch (err) {

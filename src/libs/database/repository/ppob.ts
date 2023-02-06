@@ -8,7 +8,7 @@ export interface IPpobRepo {
     findWithExclusion(options?: any): Promise<Ppob[]>;
     findOne(id?: string): Promise<Ppob>;
     findOneWithOption(options: any): Promise<Ppob>;
-    findCategory(): Promise<Ppob[]>;
+    findCategory(clause?: any): Promise<Ppob[]>;
     insertData(payload: any): Promise<any>;
     upsertData(payload: any): Promise<any>;
     updateData(payload: any, id: string): Promise<any>;
@@ -46,8 +46,14 @@ export class PpobRepository extends Repository<Ppob> {
         });
     }
 
-    findCategory(): Promise<Ppob[]> {
-        return this.createQueryBuilder('ppob').select('category').distinct(true).getRawMany();
+    findCategory(clause?: any): Promise<Ppob[]> {
+        const qb = this.createQueryBuilder('ppob').select('category').distinct(true);
+
+        if (clause) {
+            qb.where(`ppob.category ILIKE :clause`, { clause });
+        }
+
+        return qb.getRawMany();
     }
 
     insertData(payload: any): Promise<any> {

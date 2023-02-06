@@ -63,8 +63,8 @@ export class PpobService {
         return data;
     }
 
-    public async findCategoryForUser(): Promise<any[]> {
-        const result = await this.repository.findCategory();
+    public async findCategoryForUser(clause?: any): Promise<any[]> {
+        const result = await this.repository.findCategory(clause);
         const data = result.map((v) => v.category);
         return data;
     }
