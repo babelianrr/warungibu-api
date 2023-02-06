@@ -1,3 +1,4 @@
+/* eslint-disable no-unneeded-ternary */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
@@ -50,7 +51,7 @@ import { IProductRepo } from 'src/services/product';
 import { XenditCard } from 'src/clients/xendit/xenditCard';
 import { Promotions } from 'src/models/promotion';
 import { IQueryPromotionCode } from 'src/libs/database/repository/promotion';
-import { ProductStatuses } from 'src/models/products';
+import { EProductTypes, ProductStatuses } from 'src/models/products';
 import { ERoleStatus } from 'src/models/Users';
 import { Branches } from 'src/models/branches';
 import { BranchRepository } from 'src/libs/database/repository/branch';
@@ -59,7 +60,7 @@ import { generateTransactionNumber } from 'src/libs/helpers/generate-trx-number'
 export interface IOrderService {
     findForUser(userId: string): Promise<Orders[]>;
     findForAdmin(query: any, excel?: boolean): Promise<Orders[]>;
-    findByIdForUser(userId?: string, id?: string): Promise<any>;
+    findByIdForUser(userId?: string, id?: string): Promise<Orders>;
     createOrder(orderData: IOrderCreateRequest): Promise<Orders>;
     createPpobOrder(orderData: IPpobCreateRequest): Promise<Orders>;
     updatePayment(order: IOrderUpdateRequest): Promise<Orders>;
@@ -214,7 +215,7 @@ export class OrderService implements IOrderService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    public async findByIdForUser(userId?: string, id?: string): Promise<any> {
+    public async findByIdForUser(userId?: string, id?: string): Promise<Orders> {
         const order = await this.repository.findByIdForUser(userId, id);
 
         if (!order) {
@@ -409,8 +410,6 @@ export class OrderService implements IOrderService {
 
             productPrice += cart.final_unit_price;
             carts.push(cart);
-
-            await this.branchRepository.updateStockSubs(inBranch, cart.product.sku_number, cart.quantity);
         }
 
         // deduct loan limit
@@ -462,7 +461,7 @@ export class OrderService implements IOrderService {
             await this.cartRepository.save(cart);
         });
 
-        newOrder.order_events = this.addOrderEvents(newOrder, user.email);
+        newOrder.order_events = this.addOrderEvents(newOrder, user.email, orderData.sn);
 
         return this.repository.save(newOrder);
     }
@@ -1426,13 +1425,14 @@ export class OrderService implements IOrderService {
         return pdf.create(document, options);
     }
 
-    private addOrderEvents(order: Orders, user: string) {
+    private addOrderEvents(order: Orders, user: string, sn?: string) {
         const newOrderEvents: IOrderEvents[] = [
             {
                 type: 'ORDER',
                 status: order.status,
                 timestamp: new Date().toISOString(),
-                email: user
+                email: user,
+                serial_number: sn ? sn : ''
             }
         ];
         return order.order_events && order.order_events.length

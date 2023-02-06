@@ -16,6 +16,9 @@ import { NotificationMessage } from 'src/models/Notifications';
 import { EPaymentStatus } from 'src/models/Payments';
 import { Carts } from 'src/models/carts';
 import { Orders } from 'src/models/orders';
+import { EProductTypes } from 'src/models/products';
+import { PpobService } from 'src/services/ppob';
+import { Ppob } from 'src/models/ppobs';
 import { authentication, adminAuthentication, IRequestExtra } from './middlewares/authentication';
 
 export class OrderController {
@@ -23,15 +26,23 @@ export class OrderController {
 
     private readonly notificationService: INotificationService;
 
+    private ppobService: PpobService;
+
     private router: Router;
 
     private invoiceType: string;
 
     private fakturType: string;
 
-    public constructor(orderService: IOrderService, type: string, notificationService: INotificationService) {
+    public constructor(
+        orderService: IOrderService,
+        type: string,
+        notificationService: INotificationService,
+        ppobService: PpobService
+    ) {
         this.orderService = orderService;
         this.notificationService = notificationService;
+        this.ppobService = ppobService;
         this.router = Router();
         this.router.get('/count', this.count.bind(this));
 
@@ -122,7 +133,12 @@ export class OrderController {
             const userId = req.user.id;
             const order = await this.orderService.findByIdForUser(userId, req.params.id);
 
-            return res.status(200).json(order);
+            let ppob: Ppob;
+            if (order.carts[0].product.product_type === EProductTypes.PPOB) {
+                ppob = await this.ppobService.findOne(order.carts[0].product.sku_number);
+            }
+
+            return res.status(200).json({ order, ppob });
         } catch (err) {
             return next(err);
         }

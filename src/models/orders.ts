@@ -46,7 +46,7 @@ export interface IOrderCreateRequest {
 }
 
 export interface IPpobCreateRequest {
-    shipment?: {
+    shipment: {
         address_id?: string;
         location?: string;
     };
@@ -58,9 +58,10 @@ export interface IPpobCreateRequest {
         account_number?: string;
         payment_channel?: EChannel;
     };
-    carts?: string[];
     user_id: string;
     ref_id: string;
+    carts?: string[];
+    sn?: string;
 }
 
 export interface IOrderUpdateRequest {
@@ -77,11 +78,12 @@ export interface IOrderUpdateRequest {
 }
 
 export interface IOrderEvents {
-    type: 'ORDER';
+    type: string;
     status: OrderStatuses;
     timestamp: string;
-    transaction_number?: string;
     email: string;
+    transaction_number?: string;
+    serial_number?: string;
 }
 
 @Entity()
