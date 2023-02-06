@@ -17,6 +17,7 @@ interface IPpobService {
     findOne(options?: any): Promise<Ppob>;
     findOneByIdForAdmin(id: string): Promise<Ppob>;
     findForUser(category: string): Promise<Ppob[]>;
+    findCategoryForUser(): Promise<Ppob[]>;
     checkoutForUser(customer_no: string, buyer_sku_code?: string): Promise<any>;
     transactionByUser(buyer_sku_code: string, customer_no: string): Promise<any>;
     checkTransactionByUser(payload: any): Promise<any>;
@@ -60,6 +61,7 @@ export class PpobController {
         } else {
             this.router.use(authentication);
             this.router.get('/:category', this.getForUser.bind(this));
+            this.router.get('/', this.getCategoryForUser.bind(this));
             this.router.post('/', this.transactionByUser.bind(this));
             this.router.post('/checkout', this.checkoutByUser.bind(this));
             this.router.post('/:ref_id/check', this.checkTransactionByUser.bind(this));
@@ -83,6 +85,16 @@ export class PpobController {
     public async getForUser(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const data = await this.ppobService.findForUser(req.params.category);
+
+            return res.status(200).json({ data });
+        } catch (err) {
+            return next(err);
+        }
+    }
+
+    public async getCategoryForUser(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const data = await this.ppobService.findCategoryForUser();
 
             return res.status(200).json({ data });
         } catch (err) {
