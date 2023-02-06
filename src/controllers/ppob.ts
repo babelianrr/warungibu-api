@@ -144,7 +144,8 @@ export class PpobController {
                     },
                     user_id: req.user.id,
                     carts: [cart.id],
-                    ref_id: result.ref_id
+                    ref_id: result.ref_id,
+                    sn: result.sn
                 });
             }
 
