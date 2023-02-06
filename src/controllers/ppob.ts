@@ -59,7 +59,7 @@ export class PpobController {
             this.router.post('/:ref_id/check', this.checkTransactionByUser.bind(this));
         } else {
             this.router.use(authentication);
-            this.router.get('/', this.getForUser.bind(this));
+            this.router.get('/:category', this.getForUser.bind(this));
             this.router.post('/', this.transactionByUser.bind(this));
             this.router.post('/checkout', this.checkoutByUser.bind(this));
             this.router.post('/:ref_id/check', this.checkTransactionByUser.bind(this));
@@ -82,7 +82,7 @@ export class PpobController {
 
     public async getForUser(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const data = await this.ppobService.findForUser(req.body.category);
+            const data = await this.ppobService.findForUser(req.params.category);
 
             return res.status(200).json({ data });
         } catch (err) {
