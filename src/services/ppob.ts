@@ -12,25 +12,14 @@ import { ErrorObject } from 'src/libs/error-object';
 import { Ppob } from 'src/models/ppobs';
 import { OrderRepository } from 'src/libs/database/repository/order';
 import { generateTransactionNumber } from 'src/libs/helpers/generate-trx-number';
-
-interface IPpobRepository {
-    find(options?: any): Promise<Ppob[]>;
-    findWithExclusion(): Promise<Ppob[]>;
-    findOne(id: string): Promise<Ppob>;
-    findOneWithOption(options: any): Promise<Ppob>;
-    insertData(payload: any): Promise<any>;
-    upsertData(payload: any): Promise<any>;
-    updateData(payload: any, id: string): Promise<Ppob>;
-    delete(id: string): Promise<any>;
-    deleteSync(payload: string[]): Promise<any>;
-}
+import { IPpobRepo } from 'src/libs/database/repository/ppob';
 
 export class PpobService {
-    private repository: IPpobRepository;
+    private repository: IPpobRepo;
 
     orderRepo: OrderRepository;
 
-    constructor(repository: IPpobRepository, orderRepo: OrderRepository) {
+    constructor(repository: IPpobRepo, orderRepo: OrderRepository) {
         this.repository = repository;
         this.orderRepo = orderRepo;
     }
@@ -71,6 +60,12 @@ export class PpobService {
         }
         const data = await this.repository.find(find);
 
+        return data;
+    }
+
+    public async findCategoryForUser(): Promise<any[]> {
+        const result = await this.repository.findCategory();
+        const data = result.map((v) => v.category);
         return data;
     }
 

@@ -4,13 +4,16 @@ import { Ppob } from 'src/models/ppobs';
 import { EntityRepository, Repository } from 'typeorm';
 
 export interface IPpobRepo {
+    find(options?: any): Promise<Ppob[]>;
     findWithExclusion(options?: any): Promise<Ppob[]>;
     findOne(id?: string): Promise<Ppob>;
     findOneWithOption(options: any): Promise<Ppob>;
+    findCategory(): Promise<Ppob[]>;
     insertData(payload: any): Promise<any>;
     upsertData(payload: any): Promise<any>;
     updateData(payload: any, id: string): Promise<any>;
     delete(id: string): Promise<any>;
+    deleteSync(payload: string[]): Promise<any>;
 }
 
 @EntityRepository(Ppob)
@@ -41,6 +44,10 @@ export class PpobRepository extends Repository<Ppob> {
                 'desc'
             ]
         });
+    }
+
+    findCategory(): Promise<Ppob[]> {
+        return this.createQueryBuilder('ppob').select('category').distinct(true).getRawMany();
     }
 
     insertData(payload: any): Promise<any> {
