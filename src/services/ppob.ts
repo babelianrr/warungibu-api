@@ -148,34 +148,60 @@ export class PpobService {
     }
 
     public async checkoutForUser(customer_no: string, buyer_sku_code?: string): Promise<any> {
-        const result = await axios({
-            method: 'POST',
-            url: 'https://api.digiflazz.com/v1/transaction',
-            data: {
-                commands: 'pln-subscribe',
-                customer_no
-            }
-        });
-
-        const inquiry = result.data.data;
-
-        if (!inquiry) {
-            throw new ErrorObject('404', 'Nomor Pelanggan tidak ditemukan');
-        }
-
-        const ppob = await this.repository.findOneWithOption({
-            buyer_sku_code
-        });
-
-        const checkoutData = {
-            product_name: ppob.product_name,
-            customer_no: inquiry.customer_no,
-            name: this.hashCustomerName(inquiry.name),
-            segment_power: inquiry.segment_power,
-            cost_ppn: 0,
-            cost_ppj: 0,
-            sell_price: ppob.sell_price
+        let checkoutData: {
+            product_name: string;
+            customer_no: any;
+            name: string;
+            segment_power: any;
+            cost_ppn: number;
+            cost_ppj: number;
+            sell_price: number;
         };
+
+        if (buyer_sku_code.toUpperCase().includes('PLN')) {
+            const result = await axios({
+                method: 'POST',
+                url: 'https://api.digiflazz.com/v1/transaction',
+                data: {
+                    commands: 'pln-subscribe',
+                    customer_no
+                }
+            });
+
+            const inquiry = result.data.data;
+
+            if (!inquiry) {
+                throw new ErrorObject('404', 'Nomor Pelanggan tidak ditemukan');
+            }
+
+            const ppob = await this.repository.findOneWithOption({
+                buyer_sku_code: buyer_sku_code.toUpperCase()
+            });
+
+            checkoutData = {
+                product_name: ppob.product_name,
+                customer_no: inquiry.customer_no,
+                name: this.hashCustomerName(inquiry.name),
+                segment_power: inquiry.segment_power,
+                cost_ppn: 0,
+                cost_ppj: 0,
+                sell_price: ppob.sell_price
+            };
+        } else {
+            const ppob = await this.repository.findOneWithOption({
+                buyer_sku_code: buyer_sku_code.toUpperCase()
+            });
+
+            checkoutData = {
+                product_name: ppob.product_name,
+                customer_no,
+                name: '',
+                segment_power: '',
+                cost_ppn: 0,
+                cost_ppj: 0,
+                sell_price: ppob.sell_price
+            };
+        }
 
         return checkoutData;
     }
