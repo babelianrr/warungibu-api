@@ -37,6 +37,7 @@ export class OrderRepository extends Repository<Orders> {
                 'product.unit',
                 'product.discount_price',
                 'product.discount_type',
+                'product.product_type',
                 'product_image.url',
                 'shipment.*'
             ])
