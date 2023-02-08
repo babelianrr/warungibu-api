@@ -99,7 +99,7 @@ export interface IOrderService {
     updateInvoiceCart(cartData: IInvoiceCartUpdateRequest): Promise<Carts>;
     softDeleteInvoice(tansactionId: string, id: string): Promise<Carts>;
     getOrderByUserId(userId: string): any;
-    generateFakturPpob(transaction_number: string, fakturType: string, inquiry?: any): any;
+    generateFakturPpob(transaction_number: string, fakturType: string, inquiry?: any, downloadPdf?: boolean): any;
 }
 export interface IBranchController {
     getStockBySku(product_sku: any): Promise<Branches>;
@@ -1719,7 +1719,7 @@ export class OrderService implements IOrderService {
         // return orderArr;
     }
 
-    async generateFakturPpob(transaction_number: string, fakturType: string, inquiry?: any) {
+    async generateFakturPpob(transaction_number: string, fakturType: string, inquiry?: any, downloadPdf?: boolean) {
         const html = fs.readFileSync(path.join(__dirname, `../../../public/template/faktur-ppob.html`), 'utf-8');
 
         const order = await this.repository.getFakturByTransactionNumber(transaction_number);
@@ -1790,7 +1790,10 @@ export class OrderService implements IOrderService {
             type: ''
         };
 
-        // return document.data;
-        return pdf.create(document, options);
+        if (downloadPdf === true) {
+            return pdf.create(document, options);
+        }
+
+        return document.data;
     }
 }
