@@ -1,3 +1,4 @@
+/* eslint-disable import/namespace */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, NextFunction, Response } from 'express';
@@ -117,6 +118,7 @@ export class PpobController {
             const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
             const buyerSkuCode = `${result.buyer_sku_code}`.toUpperCase();
             const product = await this.productService.findPpobByProductSku(buyerSkuCode);
+            const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
 
             if (!product) {
                 throw new ErrorObject('404', 'Produk tidak ditemukan', {
@@ -139,8 +141,13 @@ export class PpobController {
                     },
                     payment: {
                         total_price: product.price,
+                        account_name: inquiry.name,
+                        account_number: req.body.customer_no,
+                        account_bank: req.body.buyer_sku_code.toUpperCase(),
                         payment_type: EPaymentType.LOAN,
-                        payment_method: EPaymentMethod.LOAN
+                        payment_method: EPaymentMethod.LOAN,
+                        reference_number: result.sn,
+                        payment_reference_number: inquiry.subscriber_id
                     },
                     user_id: req.user.id,
                     carts: [cart.id],
@@ -257,9 +264,9 @@ export class PpobController {
             await this.productService.updateProduct(
                 {
                     id: product.id,
-                    name: ppob.product_name,
-                    status: ppob.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
-                    price: ppob.sell_price
+                    name: req.body.product_name,
+                    status: req.body.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
+                    price: req.body.sell_price
                 },
                 req.user.role
             );
