@@ -72,6 +72,7 @@ export class OrderController {
             this.invoiceType = 'Invoice';
             this.router.get('/:transaction_number/invoice', this.generateInvoice.bind(this));
             this.router.get('/:transaction_number/invoice-ppob', this.generateFakturPpob.bind(this));
+            this.router.get('/:transaction_number/get-invoice-ppob', this.getFakturPpob.bind(this));
             this.router.use(authentication);
             this.router.get('/', this.get.bind(this));
             this.router.get('/:id', this.getById.bind(this));
@@ -546,11 +547,32 @@ export class OrderController {
             const result = await this.orderService.generateFakturPpob(
                 req.params.transaction_number,
                 this.invoiceType,
-                inquiry
+                inquiry,
+                true
             );
 
             // return res.status(200).json(result);
             return res.status(200).download(result.filename);
+        } catch (err) {
+            return next(err);
+        }
+    }
+
+    public async getFakturPpob(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const order = await this.orderService.findByTransactionNumber(req.params.transaction_number);
+            const inquiry = await this.ppobService.checkoutForUser(
+                order.payment.account_number,
+                order.payment.account_bank
+            );
+            const result = await this.orderService.generateFakturPpob(
+                req.params.transaction_number,
+                this.invoiceType,
+                inquiry,
+                false
+            );
+
+            return res.status(200).json(result);
         } catch (err) {
             return next(err);
         }
