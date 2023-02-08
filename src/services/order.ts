@@ -99,6 +99,7 @@ export interface IOrderService {
     updateInvoiceCart(cartData: IInvoiceCartUpdateRequest): Promise<Carts>;
     softDeleteInvoice(tansactionId: string, id: string): Promise<Carts>;
     getOrderByUserId(userId: string): any;
+    generateFakturPpob(transaction_number: string, fakturType: string, inquiry?: any): any;
 }
 export interface IBranchController {
     getStockBySku(product_sku: any): Promise<Branches>;
@@ -387,20 +388,12 @@ export class OrderService implements IOrderService {
             }
 
             const productSku = cart.product.sku_number;
-            const { quantity } = cart;
 
             let inBranch = await this.branchRepository.findStockByProductSku(productSku);
             if (!inBranch) {
                 throw new ErrorObject(
                     ErrorCodes.PRODUCT_NOT_IN_STOCK,
                     `data tidak tersedia untuk produk ${cart.product.name}`
-                );
-            }
-
-            if (Number(inBranch.stock) < quantity) {
-                throw new ErrorObject(
-                    ErrorCodes.CREATE_ORDER_ERROR,
-                    `Stok untuk produk ${cart.product.name} tidak mencukupi`
                 );
             }
 
@@ -1027,25 +1020,14 @@ export class OrderService implements IOrderService {
             status: EPaymentStatus.PENDING
         };
 
-        switch (paymentInfo.payment_method) {
-            case EPaymentMethod.XENDIT_VA:
-                paymentData.channel = paymentInfo.payment_channel;
-                paymentData.account_name = null;
-                paymentData.account_number = null;
-                break;
-            case EPaymentMethod.BANK_TRANSFER:
-                paymentData.channel = paymentInfo.payment_channel;
-                paymentData.reference_number = null;
-                paymentData.account_name = paymentInfo.account_name;
-                paymentData.account_number = paymentInfo.account_number;
-                paymentData.account_bank = paymentInfo.account_bank;
-                break;
-            default:
-                paymentData.channel = null;
-                paymentData.reference_number = null;
-                paymentData.account_name = null;
-                paymentData.account_number = null;
-        }
+        paymentData.channel = paymentInfo.payment_channel ? paymentInfo.payment_channel : '';
+        paymentData.reference_number = paymentInfo.reference_number ? paymentInfo.reference_number : '';
+        paymentData.account_name = paymentInfo.account_name ? paymentInfo.account_name : '';
+        paymentData.account_number = paymentInfo.account_number ? paymentInfo.account_number : '';
+        paymentData.account_bank = paymentInfo.account_bank ? paymentInfo.account_bank : '';
+        paymentData.payment_reference_number = paymentInfo.payment_reference_number
+            ? paymentInfo.payment_reference_number
+            : '';
 
         paymentData.events = [
             {
@@ -1735,5 +1717,80 @@ export class OrderService implements IOrderService {
         console.log(JSON.parse(JSON.stringify(document.data)));
         return pdf.create(document, options);
         // return orderArr;
+    }
+
+    async generateFakturPpob(transaction_number: string, fakturType: string, inquiry?: any) {
+        const html = fs.readFileSync(path.join(__dirname, `../../../public/template/faktur-ppob.html`), 'utf-8');
+
+        const order = await this.repository.getFakturByTransactionNumber(transaction_number);
+
+        const user = await this.userRepository.findOne(order.user_id);
+
+        const mainAddress = '';
+
+        const currencyConverter = (num: number) =>
+            new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(num);
+
+        const generatePriceFromCart = (cart: Carts) => {
+            return cart.unit_price;
+        };
+
+        const formatDate = (date: string) => format(new Date(date), 'dd MMMM yyyy', { locale: id });
+
+        const calculateSubTotal = (carts: any[]) => {
+            return currencyConverter(
+                carts.reduce((sum: any, cart: { final_unit_price: any }) => sum + cart.final_unit_price, 0)
+            );
+        };
+        const filename = `${fakturType}_${order.transaction_number}.pdf`;
+
+        const alreadyExist = fs.existsSync(path.join(__dirname, `../../../public/invoice/${filename}`));
+
+        if (alreadyExist) {
+            fs.unlinkSync(path.join(__dirname, `../../../public/invoice/${filename}`));
+        }
+
+        const items = order.carts.map((cart) => {
+            return {
+                ...cart,
+                exp_date: formatDate(cart.product.valid_to),
+                converted: {
+                    price: cart.discount_percentage
+                        ? currencyConverter(cart.unit_price - generatePriceFromCart(cart))
+                        : currencyConverter(0),
+                    price_normal: currencyConverter(cart.unit_price),
+                    discount: cart.discount_percentage ? `${cart.discount_percentage}%` : '0%',
+                    final_unit: currencyConverter(cart.final_unit_price)
+                }
+            };
+        });
+
+        const options = {
+            format: 'A4',
+            orientation: 'portrait'
+        };
+
+        const document = {
+            html,
+            path: `./public/invoice/${fakturType}_${order.transaction_number}.pdf`,
+            data: {
+                order,
+                inquiry,
+                user,
+                createdAt: formatDate(order.created_at),
+                items,
+                fakturType,
+                subTotal: calculateSubTotal(order.carts),
+                status: order.status === OrderStatuses.COMPLETED ? 'Transaksi Berhasil' : 'Transaksi Tidak Berhasil'
+            },
+            type: ''
+        };
+
+        // return document.data;
+        return pdf.create(document, options);
     }
 }

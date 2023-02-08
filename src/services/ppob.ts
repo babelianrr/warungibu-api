@@ -151,6 +151,7 @@ export class PpobService {
         let checkoutData: {
             product_name: string;
             customer_no: any;
+            subscriber_id: any;
             name: string;
             segment_power: any;
             cost_ppn: number;
@@ -181,6 +182,7 @@ export class PpobService {
             checkoutData = {
                 product_name: ppob.product_name,
                 customer_no: inquiry.customer_no,
+                subscriber_id: inquiry.subscriber_id,
                 name: this.hashCustomerName(inquiry.name),
                 segment_power: inquiry.segment_power,
                 cost_ppn: 0,
@@ -195,6 +197,7 @@ export class PpobService {
             checkoutData = {
                 product_name: ppob.product_name,
                 customer_no,
+                subscriber_id: '',
                 name: '',
                 segment_power: '',
                 cost_ppn: 0,

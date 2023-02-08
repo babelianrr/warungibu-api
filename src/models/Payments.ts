@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-types */
 import { EChannel } from 'src/clients/xendit/xendit.interfaces';
 import { Entity, PrimaryGeneratedColumn, CreateDateColumn, Column, UpdateDateColumn } from 'typeorm';
@@ -39,10 +40,12 @@ export enum EPaymentEventType {
 export interface IBuildPaymentData {
     payment_type?: string;
     payment_method?: EPaymentMethod;
-    payment_channel?: EChannel;
+    payment_channel?: string;
     account_number?: string;
     account_name?: string;
     account_bank?: string;
+    reference_number?: string;
+    payment_reference_number?: string;
 }
 
 export interface IPaymentAmount {
@@ -58,7 +61,7 @@ export interface IPaymentAmount {
 export interface IPaymentData {
     type: string;
     method?: EPaymentMethod;
-    channel?: EChannel;
+    channel?: any;
     product_price: number;
     shipment_fee: number;
     tax: number;
@@ -68,6 +71,7 @@ export interface IPaymentData {
     total_amount: number;
     account_bank?: string;
     reference_number?: string;
+    payment_reference_number?: string;
     account_name?: string;
     account_number?: string;
     status: EPaymentStatus;

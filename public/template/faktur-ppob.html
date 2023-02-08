@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Hello world!</title>
+    <style>
+        .font-small {
+            font-size: 12px;
+        }
+
+        .border {
+            border: 1px solid black;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .p-4 {
+            padding: 16px;
+        }
+
+        .p-2 {
+            padding: 8px;
+        }
+
+        .px-2 {
+            padding-right: 8px;
+            padding-left: 8px;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table td,
+        table td * {
+            vertical-align: top;
+        }
+
+        body {
+            min-height: 100%;
+            min-width: 100%;
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .product-list td {
+            border: 1px solid #000000;
+            padding: 8px;
+        }
+
+        .product-list td.list {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #CCCCCC;
+            color: black;
+        }
+
+        .order_detail tr {
+            border: 1px solid #000000;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <table width="100%">
+        <tr style="margin-bottom: 16px">
+            <td width="60%" class="px-2">
+                <img src="http://warungibu.co.id/_next/image?url=%2F_next%2Fstatic%2Fimage%2Fpublic%2Fassets%2Fbicart-ic.0d18df6b90850604e5079e8dc3e0221a.png&w=128&q=75"
+                    width="75" height="75" alt="warungibu" class="mb-4" />
+            </td>
+            <td width="40%" style="padding-top: 20px" class="p-2">{{ fakturType }} {{ order.transaction_number }}</td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td><strong>Invoice Listrik PLN</strong></td>
+        </tr>
+        <tr>
+            <td>Invoice ini merupakan bukti pembayaran yang sah, dan diterbitkan atas nama Partner.</td>
+        </tr>
+        <tr>
+            <td style="width: 30%">
+                <table>
+                    <tr>
+                        <td width="60%" class="px-2">
+                            <img src="/public/assets/pln.jpeg" width="75" height="75" alt="warungibu" class="mb-4" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="width: 70%">
+                <table>
+                    <tr>
+                        <td class="p-2 font-small"><strong>Nomor Transaksi</strong></td>
+                        <td class="p-2 font-small">: {{ order.transaction_number }}</td>
+                    </tr>
+                    <tr>
+                        <td class="p-2 font-small"><strong>Tanggal</strong></td>
+                        <td class="p-2 font-small">: {{ createdAt }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="product-list" style="margin-bottom: 16px; width: 98%; border-collapse: collapse">
+                    <tbody>
+                        <tr>
+                            <td class="list">Keterangan</td>
+                            <td class="list">{{ status }}</td>
+                        </tr>
+                        <tr>
+                            <td>Produk</td>
+                            {{#each items}}
+                            <td>{{ this.product.name }}</td>
+                            {{/each}}
+                        </tr>
+                        <tr>
+                            <td class="list">No. Meter</td>
+                            <td class="list">{{ order.payment.account_number }}</td>
+                        </tr>
+                        <tr>
+                            <td>ID Pelanggan</td>
+                            <td>{{ order.payment.payment_reference_number }}</td>
+                        </tr>
+                        <tr>
+                            <td class="list">Nama</td>
+                            <td class="list">{{ order.payment.account_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tarif/Daya</td>
+                            <td>{{ order.payment.channel }}</td>
+                        </tr>
+                        <tr>
+                            <td class="list">Rp Bayar</td>
+                            {{#each items}}
+                            <td class="list">{{ this.product.price }}</td>
+                            {{/each}}
+                        </tr>
+                        <tr>
+                            <td>Stroom/Token</td>
+                            <td>{{ order.payment.reference_number }}</td>
+                        </tr>
+                        <tr>
+                            <td class="list">Info Tambahan</td>
+                            <td class="list">Informasi Hubungi Call Center 123 atau hubungi PLN Terdekat.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+        </tr>
+        <tr style="color: #47BFE6; font-size: large;">
+            <td colspan="1"></td>
+            <td>Total Bayar: {{ subTotal }}</td>
+        </tr>
+    </table>
+</body>
+
+</html>

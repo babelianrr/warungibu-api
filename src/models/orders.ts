@@ -56,7 +56,10 @@ export interface IPpobCreateRequest {
         payment_method?: EPaymentMethod;
         account_name?: string;
         account_number?: string;
+        account_bank?: string;
         payment_channel?: EChannel;
+        reference_number?: string;
+        payment_reference_number?: string;
     };
     user_id: string;
     ref_id: string;
