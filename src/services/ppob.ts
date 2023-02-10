@@ -50,15 +50,7 @@ export class PpobService {
     }
 
     public async findForUser(category: string): Promise<Ppob[]> {
-        let find: any = {};
-        if (category) {
-            find = {
-                where: {
-                    category
-                }
-            };
-        }
-        const data = await this.repository.find(find);
+        const data = await this.repository.findForUser(category);
 
         return data;
     }

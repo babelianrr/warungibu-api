@@ -8,6 +8,7 @@ export interface IPpobRepo {
     findWithExclusion(options?: any): Promise<Ppob[]>;
     findOne(id?: string): Promise<Ppob>;
     findOneWithOption(options: any): Promise<Ppob>;
+    findForUser(category?: any): Promise<Ppob[]>;
     findCategory(clause?: any): Promise<Ppob[]>;
     insertData(payload: any): Promise<any>;
     upsertData(payload: any): Promise<any>;
@@ -51,6 +52,16 @@ export class PpobRepository extends Repository<Ppob> {
 
         if (clause) {
             qb.where(`ppob.category ILIKE :clause`, { clause });
+        }
+
+        return qb.getRawMany();
+    }
+
+    findForUser(category?: string): Promise<Ppob[]> {
+        const qb = this.createQueryBuilder('ppob').where('ppob.active = TRUE');
+
+        if (category) {
+            qb.andWhere(`ppob.category = :category`, { category });
         }
 
         return qb.getRawMany();
