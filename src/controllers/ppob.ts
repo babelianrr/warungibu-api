@@ -151,7 +151,8 @@ export class PpobController {
                         payment_type: EPaymentType.LOAN,
                         payment_method: EPaymentMethod.LOAN,
                         reference_number: token,
-                        payment_reference_number: inquiry.subscriber_id
+                        payment_reference_number: inquiry.subscriber_id,
+                        payment_channel: inquiry.segment_power
                     },
                     user_id: req.user.id,
                     carts: [cart.id],
