@@ -135,6 +135,10 @@ export class PpobController {
                     user_id: req.user.id
                 });
 
+                const { sn } = result;
+                const snArr = sn.split('/');
+                const token = snArr[0];
+
                 order = await this.orderService.createPpobOrder({
                     shipment: {
                         location: 'Gudang'
@@ -146,7 +150,7 @@ export class PpobController {
                         account_bank: req.body.buyer_sku_code.toUpperCase(),
                         payment_type: EPaymentType.LOAN,
                         payment_method: EPaymentMethod.LOAN,
-                        reference_number: result.sn,
+                        reference_number: token,
                         payment_reference_number: inquiry.subscriber_id
                     },
                     user_id: req.user.id,
