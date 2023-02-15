@@ -1,3 +1,6 @@
+/* eslint-disable no-constant-condition */
+/* eslint-disable @typescript-eslint/indent */
+/* eslint-disable no-nested-ternary */
 /* eslint no-process-env: "off" */
 import nodemailer from 'nodemailer';
 
@@ -18,9 +21,19 @@ export const X_API_KEY = process.env.X_API_KEY || 'test';
 export const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || '';
 export const DNR_APIKEY = process.env.DNR_APIKEY || 'test';
 
-export const BASE_URL = process.env.BASE_URL || 'https://bicart-backend.development-big.com';
+export const BASE_URL =
+    NODE_ENV === 'local'
+        ? process.env.BASE_URL
+        : NODE_ENV === 'development'
+        ? 'https://warungibu-api.development-big.com/'
+        : 'https://api.warungibu.co.id/';
 
-export const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'https://bicart.development-big.com';
+export const FRONTEND_BASE_URL =
+    NODE_ENV === 'local'
+        ? process.env.FRONTEND_BASE_URL
+        : NODE_ENV === 'development'
+        ? 'https://warungibu.development-big.com'
+        : 'https://warungibu.co.id';
 
 export const MAX_CART_QUANTITY = 50;
 
@@ -28,7 +41,8 @@ export const SENDER_EMAIL = process.env.SENDER_EMAIL || 'support@warungibu.co.id
 
 export const DIGIFLAZZ_USERNAME = 'wizekagwO2Pg';
 
-export const DIGIFLAZZ_API_KEY = process.env.DIGIFLAZZ_DEV_KEY || '1d14c462-b0b1-5d65-a8d6-88f3ce9d30f5';
+export const DIGIFLAZZ_API_KEY =
+    NODE_ENV === 'local' || 'development' ? process.env.DIGIFLAZZ_DEV_KEY : '1d14c462-b0b1-5d65-a8d6-88f3ce9d30f5';
 
 export const TRANSPORTER = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
