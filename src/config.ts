@@ -42,7 +42,7 @@ export const SENDER_EMAIL = process.env.SENDER_EMAIL || 'support@warungibu.co.id
 export const DIGIFLAZZ_USERNAME = 'wizekagwO2Pg';
 
 export const DIGIFLAZZ_API_KEY =
-    NODE_ENV === 'local' || 'development' ? process.env.DIGIFLAZZ_DEV_KEY : '1d14c462-b0b1-5d65-a8d6-88f3ce9d30f5';
+    NODE_ENV === 'local' ? process.env.DIGIFLAZZ_DEV_KEY : '1d14c462-b0b1-5d65-a8d6-88f3ce9d30f5';
 
 export const TRANSPORTER = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
