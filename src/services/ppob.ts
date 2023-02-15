@@ -134,9 +134,12 @@ export class PpobService {
 
     private hashCustomerName(name: string, len?: number): string {
         const nl = name.length;
-        const initial = name.slice(0, 3);
-        const ast = '*';
-        return `${initial}${ast.repeat(nl - 3)}`;
+        if (nl !== 0) {
+            const initial = name.slice(0, 3);
+            const ast = '*';
+            return `${initial}${ast.repeat(nl - 3)}`;
+        }
+        return '';
     }
 
     public async checkoutForUser(customer_no: string, buyer_sku_code?: string): Promise<any> {
@@ -163,8 +166,8 @@ export class PpobService {
 
             const inquiry = result.data.data;
 
-            if (!inquiry) {
-                throw new ErrorObject('404', 'Nomor Pelanggan tidak ditemukan');
+            if (!inquiry || inquiry.name === '') {
+                throw new ErrorObject('404', 'Pelanggan tidak ditemukan');
             }
 
             const ppob = await this.repository.findOneWithOption({
