@@ -42,8 +42,28 @@ export class SendGrid {
                     name: 'Warung Ibu Support',
                     address: SENDER_EMAIL
                 },
-                subject: 'Reset Password Link',
+                subject: 'Link Reset Password',
                 text: `Untuk melakukan reset password, klik link berikut sebelum ${user.expiry_at}.\n\n${FRONTEND_BASE_URL}/reset-password/${user.verification_token}`
+            });
+        } catch (error) {
+            console.error(error);
+
+            if (error.response) {
+                console.error(error.response.body);
+            }
+        }
+    }
+
+    async sendPinResetEmail(user: IVerifyEmail) {
+        try {
+            await TRANSPORTER.sendMail({
+                to: user.email,
+                from: {
+                    name: 'Warung Ibu Support',
+                    address: SENDER_EMAIL
+                },
+                subject: 'Link Reset PIN',
+                text: `Untuk melakukan reset PIN, klik link berikut sebelum ${user.expiry_at}.\n\n${FRONTEND_BASE_URL}/reset-password/${user.verification_token}`
             });
         } catch (error) {
             console.error(error);

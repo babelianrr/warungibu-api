@@ -68,6 +68,12 @@ interface IResetPasswordData {
     confirmation_password: string;
 }
 
+interface IResetPinData {
+    token: string;
+    new_pin: string;
+    confirmation_pin: string;
+}
+
 export interface IUserService {
     register(payload: IRegisterUser): Promise<any>;
     loginEmail(payload: ILoginEmail): Promise<any>;
@@ -94,7 +100,9 @@ export interface IUserService {
     updateReadChat(userId: string, userLoginId: string): Promise<any>;
     registerSap(user: IPayloadAuthData): Promise<any>;
     requestPasswordReset(email: string): Promise<boolean>;
+    requestPinReset(email: string): Promise<boolean>;
     resetPassword(resetPasswordData: IResetPasswordData): Promise<Users>;
+    resetPin(resetPasswordData: IResetPinData): Promise<Users>;
     importExcelUser(payload: Express.Multer.File): Promise<any>;
     setUsersLoanLimit(client_id: string, loan_limit: number): Promise<any>;
     getAllUserNoFilter(query: IQueryUsers): Promise<Users[]>;
@@ -253,7 +261,9 @@ export class UserService implements IUserService {
 
                     const token = this.generateJWTTokenUser(user);
                     delete user.password;
-                    delete user.pin;
+                    if (user.pin !== null) {
+                        delete user.pin;
+                    }
 
                     if (user.role_status === ERoleStatus.BASIC_USER) {
                         this.sendGrid.sendMail({
@@ -878,6 +888,30 @@ export class UserService implements IUserService {
         return true;
     }
 
+    async requestPinReset(email: string): Promise<boolean> {
+        const user = await this.userRepo.findUserByData(email, 'email');
+
+        if (!user) {
+            return false;
+        }
+
+        const token = randomBytes(32).toString('hex');
+        const expireAt = addDays(new Date(), 1);
+
+        user.reset_pin_token = token;
+        user.reset_pin_expired_at = expireAt;
+
+        await this.userRepo.save(user);
+
+        this.sendGrid.sendPinResetEmail({
+            email: user.email,
+            verification_token: `${user.id}.${token}`,
+            expiry_at: formatToTimeZone(expireAt, 'D MMMM YYYY pukul HH:mm:ss', { timeZone: 'Asia/Jakarta' })
+        });
+
+        return true;
+    }
+
     async resetPassword(resetPasswordData: IResetPasswordData): Promise<Users> {
         const userId = resetPasswordData.token.split('.')[0];
         const token = resetPasswordData.token.split('.')[1];
@@ -897,6 +931,26 @@ export class UserService implements IUserService {
         user.password = await this.hashPassword(resetPasswordData.new_password);
         user.reset_password_token = null;
         user.reset_password_expired_at = null;
+
+        return this.userRepo.save(user);
+    }
+
+    async resetPin(resetPasswordData: IResetPinData): Promise<Users> {
+        const userId = resetPasswordData.token.split('.')[0];
+        const token = resetPasswordData.token.split('.')[1];
+        const user = await this.userRepo.findByResetPasswordToken(userId, token);
+
+        if (!user) {
+            throw new ErrorObject(ErrorCodes.RESET_PASSWORD_ERROR, 'Reset password token tidak valid');
+        }
+
+        if (resetPasswordData.new_pin !== resetPasswordData.confirmation_pin) {
+            throw new ErrorObject(ErrorCodes.RESET_PASSWORD_ERROR, 'PIN baru dan confirmation PIN tidak sesuai');
+        }
+
+        user.pin = await this.hashPassword(resetPasswordData.new_pin);
+        user.reset_pin_token = null;
+        user.reset_pin_expired_at = null;
 
         return this.userRepo.save(user);
     }
