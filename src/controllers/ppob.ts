@@ -10,6 +10,7 @@ import { ErrorObject } from 'src/libs/error-object';
 import { ProductService } from 'src/services/product';
 import { addDays } from 'date-fns';
 import { EProductTypes, ProductStatuses } from 'src/models/products';
+import { IUserService } from 'src/services/user';
 import { IRequestExtra, adminAuthentication, authentication } from './middlewares/authentication';
 import { ICartService } from './cart';
 
@@ -37,6 +38,8 @@ export class PpobController {
 
     private cartService: ICartService;
 
+    private userService: IUserService;
+
     private router: Router;
 
     public constructor(
@@ -44,12 +47,14 @@ export class PpobController {
         orderService: IOrderService,
         productService: ProductService,
         cartService: ICartService,
+        userService: IUserService,
         type?: string
     ) {
         this.ppobService = ppobService;
         this.orderService = orderService;
         this.productService = productService;
         this.cartService = cartService;
+        this.userService = userService;
         this.router = Router();
 
         if (type === 'ADMIN') {
@@ -115,53 +120,60 @@ export class PpobController {
 
     public async transactionByUser(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
-            const buyerSkuCode = `${result.buyer_sku_code}`.toUpperCase();
-            const product = await this.productService.findPpobByProductSku(buyerSkuCode);
-            const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
+            const user = await this.userService.getUserById(req.user.id);
+            const match = await this.userService.compareHasPassword(req.body.pin, user.pin);
 
-            if (!product) {
-                throw new ErrorObject('404', 'Produk tidak ditemukan', {
-                    buyer_sku_code: buyerSkuCode
-                });
+            if (match) {
+                const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
+                const buyerSkuCode = `${result.buyer_sku_code}`.toUpperCase();
+                const product = await this.productService.findPpobByProductSku(buyerSkuCode);
+                const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
+
+                if (!product) {
+                    throw new ErrorObject('404', 'Produk tidak ditemukan', {
+                        buyer_sku_code: buyerSkuCode
+                    });
+                }
+
+                let order: Orders;
+                if (result.status === 'Sukses') {
+                    const cart = await this.cartService.addToCart({
+                        product_id: product.id,
+                        location: 'Gudang',
+                        quantity: 1,
+                        user_id: req.user.id
+                    });
+
+                    const { sn } = result;
+                    const snArr = sn.split('/');
+                    const token = snArr[0];
+
+                    order = await this.orderService.createPpobOrder({
+                        shipment: {
+                            location: 'Gudang'
+                        },
+                        payment: {
+                            total_price: product.price,
+                            account_name: inquiry.name,
+                            account_number: req.body.customer_no,
+                            account_bank: req.body.buyer_sku_code.toUpperCase(),
+                            payment_type: EPaymentType.LOAN,
+                            payment_method: EPaymentMethod.LOAN,
+                            reference_number: token,
+                            payment_reference_number: inquiry.subscriber_id,
+                            payment_channel: inquiry.segment_power
+                        },
+                        user_id: req.user.id,
+                        carts: [cart.id],
+                        ref_id: result.ref_id,
+                        sn: result.sn
+                    });
+                }
+
+                return res.status(200).json({ result, order });
             }
 
-            let order: Orders;
-            if (result.status === 'Sukses') {
-                const cart = await this.cartService.addToCart({
-                    product_id: product.id,
-                    location: 'Gudang',
-                    quantity: 1,
-                    user_id: req.user.id
-                });
-
-                const { sn } = result;
-                const snArr = sn.split('/');
-                const token = snArr[0];
-
-                order = await this.orderService.createPpobOrder({
-                    shipment: {
-                        location: 'Gudang'
-                    },
-                    payment: {
-                        total_price: product.price,
-                        account_name: inquiry.name,
-                        account_number: req.body.customer_no,
-                        account_bank: req.body.buyer_sku_code.toUpperCase(),
-                        payment_type: EPaymentType.LOAN,
-                        payment_method: EPaymentMethod.LOAN,
-                        reference_number: token,
-                        payment_reference_number: inquiry.subscriber_id,
-                        payment_channel: inquiry.segment_power
-                    },
-                    user_id: req.user.id,
-                    carts: [cart.id],
-                    ref_id: result.ref_id,
-                    sn: result.sn
-                });
-            }
-
-            return res.status(200).json({ result, order });
+            throw new ErrorObject('400', 'PIN tidak cocok.', req.body);
         } catch (err) {
             return next(err);
         }

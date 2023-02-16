@@ -75,6 +75,10 @@ export class UserRepository extends Repository<Users> {
         return this.createQueryBuilder('users').update(Users).set({ password }).where('id = :id', { id }).execute();
     }
 
+    public async updatePin(id: string, pin: string) {
+        return this.createQueryBuilder('users').update(Users).set({ pin }).where('id = :id', { id }).execute();
+    }
+
     public async findAllUser(query: IQueryUsers) {
         const ormQuery = this.createQueryBuilder('users')
             .leftJoinAndSelect('users.outlet_types_id', 'outlet_types')
