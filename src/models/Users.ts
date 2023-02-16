@@ -135,6 +135,12 @@ export class Users {
     @Column({ type: 'timestamptz' })
     reset_password_expired_at?: Date;
 
+    @Column({ type: 'varchar' })
+    reset_pin_token?: string;
+
+    @Column({ type: 'timestamptz' })
+    reset_pin_expired_at?: Date;
+
     @CreateDateColumn({ type: 'timestamptz' })
     created: Date;
 

@@ -49,6 +49,8 @@ export class UserController {
         this.router.post('/resend_email_verification', this.resendEmailVerification.bind(this));
         this.router.post('/forgot-password', this.requestResetPassword.bind(this));
         this.router.post('/forgot-password/:token', this.resetPassword.bind(this));
+        this.router.post('/forgot-pin', this.requestResetPin.bind(this));
+        this.router.post('/forgot-pin/:token', this.resetPin.bind(this));
 
         if (type === 'ADMIN') {
             this.isAdminRequest = true;
@@ -477,6 +479,16 @@ export class UserController {
         }
     }
 
+    async requestResetPin(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const result = await this.userService.requestPinReset(req.body.email);
+
+            return res.status(200).json({ message: 'Link untuk reset PIN akan dikirimkan ke email yang disubmit' });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
     async resetPassword(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const data = {
@@ -486,6 +498,22 @@ export class UserController {
             };
 
             const result = await this.userService.resetPassword(data);
+
+            return res.status(200).json({ message: 'Password telah diganti, silahkan login kembali' });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    async resetPin(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const data = {
+                token: req.params.token,
+                new_pin: req.body.new_pin,
+                confirmation_pin: req.body.confirmation_pin
+            };
+
+            const result = await this.userService.resetPin(data);
 
             return res.status(200).json({ message: 'Password telah diganti, silahkan login kembali' });
         } catch (error) {
