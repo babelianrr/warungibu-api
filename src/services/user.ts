@@ -261,9 +261,6 @@ export class UserService implements IUserService {
 
                     const token = this.generateJWTTokenUser(user);
                     delete user.password;
-                    if (user.pin !== null) {
-                        delete user.pin;
-                    }
 
                     if (user.role_status === ERoleStatus.BASIC_USER) {
                         this.sendGrid.sendMail({
