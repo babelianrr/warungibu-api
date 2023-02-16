@@ -57,6 +57,11 @@ export interface IUpdatePassword extends IPayloadAuthData {
     new_password: string;
 }
 
+export interface IUpdatePin extends IPayloadAuthData {
+    old_pin: string;
+    new_pin: string;
+}
+
 interface IResetPasswordData {
     token: string;
     new_password: string;
@@ -68,6 +73,9 @@ export interface IUserService {
     loginEmail(payload: ILoginEmail): Promise<any>;
     loginPhone(payload: ILoginPhone): Promise<any>;
     updatePassword(payload: IUpdatePassword): Promise<any>;
+    updatePinForUser(payload: IUpdatePin): Promise<any>;
+    addPinForUser(payload: any): Promise<any>;
+    compareHasPassword(plainPass: string, hash: string): Promise<boolean>;
     getUserInfo(payload: IPayloadAuthData, id: string): Promise<any>;
     getUserById(id?: string): Promise<Users>;
     updateUserInfo(payload: any): Promise<any>;
@@ -204,6 +212,7 @@ export class UserService implements IUserService {
 
                     const token = this.generateJWTTokenUser(user);
                     delete user.password;
+                    delete user.pin;
                     delete user.verification_token;
 
                     if (user.role_status === ERoleStatus.BASIC_USER) {
@@ -244,6 +253,7 @@ export class UserService implements IUserService {
 
                     const token = this.generateJWTTokenUser(user);
                     delete user.password;
+                    delete user.pin;
 
                     if (user.role_status === ERoleStatus.BASIC_USER) {
                         this.sendGrid.sendMail({
@@ -278,7 +288,7 @@ export class UserService implements IUserService {
         return await bcrypt.hash(plainPass, salt);
     }
 
-    private async compareHasPassword(plainPass: string, hash: string): Promise<boolean> {
+    public async compareHasPassword(plainPass: string, hash: string): Promise<boolean> {
         return await bcrypt.compare(plainPass, hash);
     }
 
@@ -315,6 +325,64 @@ export class UserService implements IUserService {
                     const hashedPassword = await this.hashPassword(payload.new_password);
                     await this.userRepo.updatePassword(payload.id, hashedPassword);
                     delete user.password;
+                    delete user.pin;
+                    delete user.verification_token;
+
+                    const token = this.generateJWTTokenUser(user);
+                    return {
+                        user,
+                        token,
+                        refresh_token: token
+                    };
+                }
+                throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, ErrorMessages.USER_NOT_FOUND_OR_WRONG_PASS, {
+                    email: payload.email
+                });
+            } else {
+                throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, ErrorMessages.USER_NOT_FOUND, {
+                    email: payload.email
+                });
+            }
+        } catch (error) {
+            throw new ErrorObject(ErrorCodes.CAN_NOT_LOGIN, ErrorMessages.USER_NOT_FOUND_OR_WRONG_PASS, error);
+        }
+    }
+
+    async addPinForUser(payload: any) {
+        try {
+            const user = await this.userRepo.findUserByData(payload.email, 'email');
+            if (user !== null || user !== undefined) {
+                const hashedPassword = await this.hashPassword(payload.new_pin);
+                await this.userRepo.updatePin(payload.id, hashedPassword);
+                delete user.password;
+                delete user.pin;
+                delete user.verification_token;
+
+                const token = this.generateJWTTokenUser(user);
+                return {
+                    user,
+                    token,
+                    refresh_token: token
+                };
+            }
+            throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, ErrorMessages.USER_NOT_FOUND, {
+                email: payload.email
+            });
+        } catch (error) {
+            throw new ErrorObject(ErrorCodes.CAN_NOT_LOGIN, ErrorMessages.USER_NOT_FOUND_OR_WRONG_PASS, error);
+        }
+    }
+
+    async updatePinForUser(payload: IUpdatePin) {
+        try {
+            const user = await this.userRepo.findUserByData(payload.email, 'email');
+            if (user !== null || user !== undefined) {
+                const match = await this.compareHasPassword(payload.old_pin, user.pin);
+                if (match) {
+                    const hashedPassword = await this.hashPassword(payload.new_pin);
+                    await this.userRepo.updatePin(payload.id, hashedPassword);
+                    delete user.password;
+                    delete user.pin;
                     delete user.verification_token;
 
                     const token = this.generateJWTTokenUser(user);
@@ -338,7 +406,7 @@ export class UserService implements IUserService {
     }
 
     async getUserInfo(payload: IPayloadAuthData, id?: string): Promise<any> {
-        let user;
+        let user: Users;
         if (payload.email) {
             user = await this.userRepo.findUserByData(payload.email, 'email');
         } else if (payload.id) {
@@ -351,6 +419,7 @@ export class UserService implements IUserService {
 
         delete user.verification_token;
         delete user.password;
+        delete user.pin;
 
         if (user) {
             return user;
@@ -482,6 +551,7 @@ export class UserService implements IUserService {
             );
 
             delete updatedUser.password;
+            delete updatedUser.pin;
             delete updatedUser.verification_token;
 
             return updatedUser;
@@ -510,6 +580,7 @@ export class UserService implements IUserService {
             );
 
             delete updatedUser.password;
+            delete updatedUser.pin;
             delete updatedUser.verification_token;
             return updatedUser;
         }

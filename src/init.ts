@@ -211,8 +211,15 @@ export async function init(): Promise<Record<string, any>> {
     const promotionController = new PromotionController(promotionService, promotionProductService, '');
     const adminPromotionController = new PromotionController(promotionService, promotionProductService, 'ADMIN');
     const paymentTermsController = new PaymentTermsController(paymentTermsService);
-    const ppobController = new PpobController(ppobService, orderService, productService, cartService, '');
-    const ppobAdminController = new PpobController(ppobService, orderService, productService, cartService, 'ADMIN');
+    const ppobController = new PpobController(ppobService, orderService, productService, cartService, userService, '');
+    const ppobAdminController = new PpobController(
+        ppobService,
+        orderService,
+        productService,
+        cartService,
+        userService,
+        'ADMIN'
+    );
 
     return {
         healthcheckController,

@@ -70,6 +70,8 @@ export class UserController {
         } else {
             this.router.use(authentication);
             this.router.patch('/password/id', this.updatePassword.bind(this));
+            this.router.patch('/add-pin', this.addPinForUser.bind(this));
+            this.router.patch('/update-pin', this.updatePinForUser.bind(this));
             this.router.post('/get_customer_detail', this.updateCustomerDetail.bind(this));
             this.router.post('/verified_email_token', this.verifiedEmailToken.bind(this));
             this.router.get('/verification_check', this.userVerificationCheck.bind(this));
@@ -158,6 +160,37 @@ export class UserController {
                 email,
                 new_password: req.body.new_password,
                 old_password: req.body.old_password
+            });
+
+            return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    async addPinForUser(req: IRequestExtra, res: Response, next: NextFunction) {
+        try {
+            const { id, email } = req.user;
+            const result = await this.userService.addPinForUser({
+                id,
+                email,
+                new_pin: req.body.new_pin
+            });
+
+            return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    async updatePinForUser(req: IRequestExtra, res: Response, next: NextFunction) {
+        try {
+            const { id, email } = req.user;
+            const result = await this.userService.updatePinForUser({
+                id,
+                email,
+                new_pin: req.body.new_pin,
+                old_pin: req.body.old_pin
             });
 
             return res.status(200).json(result);

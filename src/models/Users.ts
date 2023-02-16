@@ -62,6 +62,9 @@ export class Users {
     @Column({ type: 'varchar' })
     password: string;
 
+    @Column({ type: 'varchar' })
+    pin: string;
+
     @Column({ type: 'text' })
     user_address: string;
 
