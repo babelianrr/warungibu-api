@@ -197,8 +197,14 @@ export async function init(): Promise<Record<string, any>> {
     const cartBatchController = new CartBatchController(cartBatchService);
     const cartController = new CartController(cartService);
     const bankAccountController = new BankAccountController(bankAccountService);
-    const orderController = new OrderController(orderService, ' ', notificationService, ppobService);
-    const adminOrderController = new OrderController(orderService, 'ADMIN', notificationService, ppobService);
+    const orderController = new OrderController(orderService, ' ', notificationService, ppobService, userService);
+    const adminOrderController = new OrderController(
+        orderService,
+        'ADMIN',
+        notificationService,
+        ppobService,
+        userService
+    );
     const notificationController = new NotificationController(notificationService);
     const reportController = new ReportController(reportService);
     const bannerController = new BannerController(bannerService);

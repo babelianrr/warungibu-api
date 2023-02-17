@@ -173,7 +173,7 @@ export class PpobController {
                 return res.status(200).json({ result, order });
             }
 
-            throw new ErrorObject('400', 'PIN tidak cocok.', req.body);
+            throw new ErrorObject('400', 'PIN tidak cocok.', { pin: req.body.pin });
         } catch (err) {
             return next(err);
         }
