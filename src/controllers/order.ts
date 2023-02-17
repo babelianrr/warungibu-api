@@ -19,6 +19,8 @@ import { Orders } from 'src/models/orders';
 import { EProductTypes } from 'src/models/products';
 import { PpobService } from 'src/services/ppob';
 import { Ppob } from 'src/models/ppobs';
+import { IUserService } from 'src/services/user';
+import { ErrorObject } from 'src/libs/error-object';
 import { authentication, adminAuthentication, IRequestExtra } from './middlewares/authentication';
 
 export class OrderController {
@@ -27,6 +29,8 @@ export class OrderController {
     private readonly notificationService: INotificationService;
 
     private ppobService: PpobService;
+
+    private userService: IUserService;
 
     private router: Router;
 
@@ -38,11 +42,13 @@ export class OrderController {
         orderService: IOrderService,
         type: string,
         notificationService: INotificationService,
-        ppobService: PpobService
+        ppobService: PpobService,
+        userService: IUserService
     ) {
         this.orderService = orderService;
         this.notificationService = notificationService;
         this.ppobService = ppobService;
+        this.userService = userService;
         this.router = Router();
         this.router.get('/count', this.count.bind(this));
 
@@ -226,16 +232,23 @@ export class OrderController {
 
     public async post(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const order = await this.orderService.createOrder({
-                shipment: req.body.shipment,
-                payment: req.body.payment,
-                carts: req.body.carts,
-                user_id: req.user.id
-            });
+            const user = await this.userService.getUserById(req.user.id);
+            const match = await this.userService.compareHasPassword(req.body.pin, user.pin);
 
-            await this.notificationService.createNotification(req.user.id, NotificationMessage.CREATED, order.id);
+            if (match) {
+                const order = await this.orderService.createOrder({
+                    shipment: req.body.shipment,
+                    payment: req.body.payment,
+                    carts: req.body.carts,
+                    user_id: req.user.id
+                });
 
-            return res.status(201).json(order);
+                await this.notificationService.createNotification(req.user.id, NotificationMessage.CREATED, order.id);
+
+                return res.status(201).json(order);
+            }
+
+            throw new ErrorObject('400', 'PIN tidak cocok.', { pin: req.body.pin });
         } catch (err) {
             console.log(err);
             return next(err);
