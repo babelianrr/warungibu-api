@@ -933,16 +933,18 @@ export class UserService implements IUserService {
     }
 
     async resetPin(resetPasswordData: IResetPinData): Promise<Users> {
-        const userId = resetPasswordData.token.split('.')[0];
-        const token = resetPasswordData.token.split('.')[1];
-        const user = await this.userRepo.findByResetPasswordToken(userId, token);
+        const tokens = resetPasswordData.token.split('.');
+        console.log(tokens);
+        const userId = tokens[0];
+        const token = tokens[1];
+        const user = await this.userRepo.findByResetPinToken(userId, token);
 
         if (!user) {
-            throw new ErrorObject(ErrorCodes.RESET_PASSWORD_ERROR, 'Reset password token tidak valid');
+            throw new ErrorObject('RESET_PIN_ERROR', 'Reset password token tidak valid');
         }
 
         if (resetPasswordData.new_pin !== resetPasswordData.confirmation_pin) {
-            throw new ErrorObject(ErrorCodes.RESET_PASSWORD_ERROR, 'PIN baru dan confirmation PIN tidak sesuai');
+            throw new ErrorObject('RESET_PIN_ERROR', 'PIN baru dan confirmation PIN tidak sesuai');
         }
 
         user.pin = await this.hashPassword(resetPasswordData.new_pin);

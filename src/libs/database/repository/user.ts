@@ -71,6 +71,14 @@ export class UserRepository extends Repository<Users> {
             .getOne();
     }
 
+    public async findByResetPinToken(userId: string, token: string): Promise<Users> {
+        return this.createQueryBuilder('users')
+            .where('users.id = :userId', { userId })
+            .andWhere('users.reset_pin_token = :token', { token })
+            .andWhere('users.reset_pin_expired_at >= :now', { now: new Date() })
+            .getOne();
+    }
+
     public async updatePassword(id: string, password: string) {
         return this.createQueryBuilder('users').update(Users).set({ password }).where('id = :id', { id }).execute();
     }
