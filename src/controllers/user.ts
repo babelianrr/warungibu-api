@@ -71,6 +71,7 @@ export class UserController {
             this.router.get('/:id', this.getUserDetail.bind(this));
         } else {
             this.router.use(authentication);
+            this.router.post('/check-pin', this.checkPin.bind(this));
             this.router.patch('/password/id', this.updatePassword.bind(this));
             this.router.patch('/add-pin', this.addPinForUser.bind(this));
             this.router.patch('/update-pin', this.updatePinForUser.bind(this));
@@ -149,6 +150,21 @@ export class UserController {
             }
 
             return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    async checkPin(req: IRequestExtra, res: Response, next: NextFunction) {
+        try {
+            const user = await this.userService.getUserById(req.user.id);
+            const result = await this.userService.compareHasPassword(req.body.pin, user.pin);
+
+            if (result) {
+                return res.status(200).json({ message: 'OK' });
+            }
+
+            return res.status(400).json({ message: 'PIN tidak sesuai!' });
         } catch (error) {
             return next(error);
         }
@@ -513,8 +529,7 @@ export class UserController {
                 confirmation_pin: req.body.confirmation_pin
             };
 
-            const result = await this.userService.resetPin(data);
-
+            await this.userService.resetPin(data);
             return res.status(200).json({ message: 'PIN berhasil diubah' });
         } catch (error) {
             return next(error);
