@@ -399,8 +399,8 @@ export class UserService implements IUserService {
                         refresh_token: token
                     };
                 }
-                throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, ErrorMessages.USER_NOT_FOUND_OR_WRONG_PASS, {
-                    email: payload.email
+                throw new ErrorObject('400', 'PIN tidak sesuai.', {
+                    pin: payload.old_pin
                 });
             } else {
                 throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, ErrorMessages.USER_NOT_FOUND, {
@@ -934,7 +934,6 @@ export class UserService implements IUserService {
 
     async resetPin(resetPasswordData: IResetPinData): Promise<Users> {
         const tokens = resetPasswordData.token.split('.');
-        console.log(tokens);
         const userId = tokens[0];
         const token = tokens[1];
         const user = await this.userRepo.findByResetPinToken(userId, token);
