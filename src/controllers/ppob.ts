@@ -136,7 +136,7 @@ export class PpobController {
                 }
 
                 let order: Orders;
-                if (result.status === 'Sukses') {
+                if (result.status === 'Sukses' || result.status === 'Pending') {
                     const cart = await this.cartService.addToCart({
                         product_id: product.id,
                         location: 'Gudang',
@@ -168,9 +168,10 @@ export class PpobController {
                         ref_id: result.ref_id,
                         sn: result.sn
                     });
+                    return res.status(200).json({ result, order });
                 }
 
-                return res.status(200).json({ result, order });
+                return res.status(400).json({ message: 'Transaksi gagal.' });
             }
 
             throw new ErrorObject('400', 'PIN tidak cocok.', { pin: req.body.pin });
