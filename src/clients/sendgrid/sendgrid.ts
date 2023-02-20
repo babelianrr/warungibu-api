@@ -63,7 +63,7 @@ export class SendGrid {
                     address: SENDER_EMAIL
                 },
                 subject: 'Link Reset PIN',
-                text: `Untuk melakukan reset PIN, klik link berikut sebelum ${user.expiry_at}.\n\n${FRONTEND_BASE_URL}/reset-password/${user.verification_token}`
+                text: `Untuk melakukan reset PIN, klik link berikut sebelum ${user.expiry_at}.\n\n${FRONTEND_BASE_URL}/reset-pin/${user.verification_token}`
             });
         } catch (error) {
             console.error(error);
