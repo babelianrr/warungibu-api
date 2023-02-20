@@ -515,7 +515,7 @@ export class UserController {
 
             const result = await this.userService.resetPin(data);
 
-            return res.status(200).json({ message: 'Password telah diganti, silahkan login kembali' });
+            return res.status(200).json({ message: 'PIN berhasil diubah' });
         } catch (error) {
             return next(error);
         }
