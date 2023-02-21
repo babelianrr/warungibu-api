@@ -145,8 +145,8 @@ export class PpobController {
                     });
 
                     const { sn } = result;
-                    const snArr = sn.split('/');
-                    const token = snArr[0];
+                    const snArr = sn !== '' ? sn.split('/') : [];
+                    const token = sn !== '' ? snArr[0] : '';
 
                     order = await this.orderService.createPpobOrder({
                         shipment: {
