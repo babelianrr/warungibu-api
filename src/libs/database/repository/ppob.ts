@@ -79,16 +79,21 @@ export class PpobRepository extends Repository<Ppob> {
             .orUpdate(
                 [
                     'price',
+                    'category',
+                    'brand',
+                    'type',
+                    'seller_name',
                     'buyer_product_status',
                     'seller_product_status',
                     'unlimited_stock',
                     'stock',
                     'start_cut_off',
-                    'end_cut_off'
+                    'end_cut_off',
+                    'desc'
                 ],
                 ['buyer_sku_code'],
                 {
-                    skipUpdateIfNoValuesChanged: true
+                    skipUpdateIfNoValuesChanged: false
                 }
             )
             .execute();
