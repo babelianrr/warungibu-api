@@ -125,6 +125,7 @@ export class PpobController {
 
             if (match) {
                 const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
+                console.info(result);
                 const buyerSkuCode = `${result.buyer_sku_code}`.toUpperCase();
                 const product = await this.productService.findPpobByProductSku(buyerSkuCode);
                 const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
@@ -135,43 +136,43 @@ export class PpobController {
                     });
                 }
 
-                let order: Orders;
-                if (result.status === 'Sukses' || result.status === 'Pending') {
-                    const cart = await this.cartService.addToCart({
-                        product_id: product.id,
-                        location: 'Gudang',
-                        quantity: 1,
-                        user_id: req.user.id
-                    });
+                // let order: Orders;
+                // if (result.status === 'Sukses' || result.status === 'Pending') {
+                const cart = await this.cartService.addToCart({
+                    product_id: product.id,
+                    location: 'Gudang',
+                    quantity: 1,
+                    user_id: req.user.id
+                });
 
-                    const { sn } = result;
-                    const snArr = sn !== '' ? sn.split('/') : [];
-                    const token = sn !== '' ? snArr[0] : '';
+                const { sn } = result;
+                const snArr = sn !== '' ? sn.split('/') : [];
+                const token = sn !== '' ? snArr[0] : '';
 
-                    order = await this.orderService.createPpobOrder({
-                        shipment: {
-                            location: 'Gudang'
-                        },
-                        payment: {
-                            total_price: product.price,
-                            account_name: inquiry.name,
-                            account_number: req.body.customer_no,
-                            account_bank: req.body.buyer_sku_code.toUpperCase(),
-                            payment_type: EPaymentType.LOAN,
-                            payment_method: EPaymentMethod.LOAN,
-                            reference_number: token,
-                            payment_reference_number: inquiry.subscriber_id,
-                            payment_channel: inquiry.segment_power
-                        },
-                        user_id: req.user.id,
-                        carts: [cart.id],
-                        ref_id: result.ref_id,
-                        sn: result.sn
-                    });
-                    return res.status(200).json({ result, order });
-                }
+                const order = await this.orderService.createPpobOrder({
+                    shipment: {
+                        location: 'Gudang'
+                    },
+                    payment: {
+                        total_price: product.price,
+                        account_name: inquiry.name,
+                        account_number: req.body.customer_no,
+                        account_bank: req.body.buyer_sku_code.toUpperCase(),
+                        payment_type: EPaymentType.LOAN,
+                        payment_method: EPaymentMethod.LOAN,
+                        reference_number: token,
+                        payment_reference_number: inquiry.subscriber_id,
+                        payment_channel: inquiry.segment_power
+                    },
+                    user_id: req.user.id,
+                    carts: [cart.id],
+                    ref_id: result.ref_id,
+                    sn: result.sn
+                });
+                return res.status(200).json({ result, order });
+                // }
 
-                return res.status(400).json({ message: 'Transaksi gagal.' });
+                // return res.status(400).json({ message: 'Transaksi gagal.' });
             }
 
             throw new ErrorObject('400', 'PIN tidak cocok.', { pin: req.body.pin });
