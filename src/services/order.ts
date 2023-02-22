@@ -1042,14 +1042,12 @@ export class OrderService implements IOrderService {
             status: EPaymentStatus.PENDING
         };
 
-        paymentData.channel = paymentInfo.payment_channel ? paymentInfo.payment_channel : '';
-        paymentData.reference_number = paymentInfo.reference_number ? paymentInfo.reference_number : '';
-        paymentData.account_name = paymentInfo.account_name ? paymentInfo.account_name : '';
-        paymentData.account_number = paymentInfo.account_number ? paymentInfo.account_number : '';
-        paymentData.account_bank = paymentInfo.account_bank ? paymentInfo.account_bank : '';
-        paymentData.payment_reference_number = paymentInfo.payment_reference_number
-            ? paymentInfo.payment_reference_number
-            : '';
+        paymentData.channel = paymentInfo.payment_channel;
+        paymentData.reference_number = paymentInfo.reference_number;
+        paymentData.account_name = paymentInfo.account_name;
+        paymentData.account_number = paymentInfo.account_number;
+        paymentData.account_bank = paymentInfo.account_bank;
+        paymentData.payment_reference_number = paymentInfo.payment_reference_number;
 
         paymentData.events = [
             {
