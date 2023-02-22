@@ -420,7 +420,7 @@ export class OrderService implements IOrderService {
         let newOrder = this.repository.create({
             user_id: orderData.user_id,
             transaction_number: orderData.ref_id,
-            status: orderData.status === 'Sukses' ? OrderStatuses.COMPLETED : OrderStatuses.ONGOING,
+            status: orderData.status === 'Sukses' ? OrderStatuses.COMPLETED : OrderStatuses.PENDING,
             expired_at: expirationdate
         });
 
