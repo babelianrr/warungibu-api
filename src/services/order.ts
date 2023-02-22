@@ -856,9 +856,9 @@ export class OrderService implements IOrderService {
             throw new ErrorObject(ErrorCodes.ORDER_NOT_FOUND_ERROR, 'order not found');
         }
 
-        if (order.status !== OrderStatuses.DELIVERED) {
-            throw new ErrorObject(ErrorCodes.COMPLETE_ORDER_ERROR, 'Order Belum Terkirim atau Sudah Selesai');
-        }
+        // if (order.status !== OrderStatuses.DELIVERED) {
+        //     throw new ErrorObject(ErrorCodes.COMPLETE_ORDER_ERROR, 'Order Belum Terkirim atau Sudah Selesai');
+        // }
 
         const updatedOrder = {
             ...order,
