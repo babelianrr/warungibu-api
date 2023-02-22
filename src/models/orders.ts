@@ -65,6 +65,7 @@ export interface IPpobCreateRequest {
     ref_id: string;
     carts?: string[];
     sn?: string;
+    status?: string;
 }
 
 export interface IOrderUpdateRequest {
