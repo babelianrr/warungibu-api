@@ -144,9 +144,9 @@ export class PpobController {
                         user_id: req.user.id
                     });
 
-                    const { sn } = result;
-                    const snArr = sn !== '' ? sn.split('/') : [];
-                    const token = sn !== '' ? snArr[0] : '';
+                    // const { sn } = result;
+                    // const snArr = sn !== '' ? sn.split('/') : [];
+                    // const token = sn !== '' ? snArr[0] : '';
 
                     order = await this.orderService.createPpobOrder({
                         shipment: {
@@ -159,14 +159,15 @@ export class PpobController {
                             account_bank: req.body.buyer_sku_code.toUpperCase(),
                             payment_type: EPaymentType.LOAN,
                             payment_method: EPaymentMethod.LOAN,
-                            reference_number: token,
+                            reference_number: result.sn,
                             payment_reference_number: inquiry.subscriber_id,
                             payment_channel: inquiry.segment_power
                         },
                         user_id: req.user.id,
                         carts: [cart.id],
                         ref_id: result.ref_id,
-                        sn: result.sn
+                        sn: result.sn,
+                        status: result.status
                     });
                     return res.status(200).json({ result, order });
                 }
@@ -191,6 +192,15 @@ export class PpobController {
                 buyer_sku_code: req.body.buyer_sku_code,
                 customer_no: req.body.customer_no
             });
+            const order = await this.orderService.findByTransactionNumber(data.ref_id);
+
+            if (data.status === 'Gagal') {
+                await this.orderService.cancelOrderUser(order.id, req.user.id, req.user.email);
+            }
+
+            if (data.status === 'Sukses') {
+                await this.orderService.completeOrder(req.user.id, order.id, req.user.email);
+            }
 
             return res.status(200).json(data);
         } catch (err) {

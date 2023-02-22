@@ -420,7 +420,7 @@ export class OrderService implements IOrderService {
         let newOrder = this.repository.create({
             user_id: orderData.user_id,
             transaction_number: orderData.ref_id,
-            status: OrderStatuses.COMPLETED,
+            status: orderData.status === 'Sukses' ? OrderStatuses.COMPLETED : OrderStatuses.ONGOING,
             expired_at: expirationdate
         });
 
@@ -454,7 +454,7 @@ export class OrderService implements IOrderService {
             await this.cartRepository.save(cart);
         });
 
-        newOrder.order_events = this.addOrderEvents(newOrder, user.email, orderData.sn);
+        newOrder.order_events = this.addOrderEvents(newOrder, user.email);
 
         return this.repository.save(newOrder);
     }
@@ -714,24 +714,46 @@ export class OrderService implements IOrderService {
             throw new ErrorObject(ErrorCodes.ORDER_NOT_FOUND_ERROR, 'Transaksi tidak ditemukan');
         }
 
-        if (order.status !== OrderStatuses.ORDERED) {
+        const user = await this.userRepository.findOne(order.user_id);
+        if (!user) {
+            throw new ErrorObject(ErrorCodes.CREATE_ORDER_ERROR, 'Akun tidak ditemukan');
+        }
+
+        if (order.status === OrderStatuses.DELIVERED || order.status === OrderStatuses.COMPLETED) {
             throw new ErrorObject(
                 ErrorCodes.CANCEL_ORDER_ERROR,
-                'Tidak dapat membatalkan transaksi yang sudah diproses'
+                'Tidak dapat membatalkan transaksi yang sudah Terkirim atau Selesai'
             );
         }
 
-        order.payment.status = EPaymentStatus.FAILED;
-        order.payment.events.push({
-            type: 'PAYMENT',
-            total_amount: order.payment.total_amount,
-            status: EPaymentStatus.FAILED,
-            method: order.payment.method,
-            channel: order.payment.channel,
-            account_number: order.payment.account_number,
-            event_type: EPaymentEventType.FAILED,
-            timestamp: new Date().toISOString()
-        });
+        let productPrice = 0;
+        // eslint-disable-next-line no-restricted-syntax
+        for (const v of order.carts) {
+            const branch = await this.branchRepository.findStockByProductSku(v.product.sku_number);
+            await this.branchRepository.updateStockRevert(v.product.sku_number, v.quantity, branch);
+
+            productPrice += v.final_unit_price;
+        }
+
+        const userLoanLimit = user.loan_limit;
+        const userLoanLevel = user.loan_level;
+        if (userLoanLevel !== 0) {
+            await this.userRepository.changeLoanLimit(order.user_id, userLoanLimit + productPrice);
+        }
+
+        if (order.payment.status === EPaymentStatus.SUCCESS || order.payment.status === EPaymentStatus.PENDING) {
+            order.payment.status = EPaymentStatus.REFUNDED;
+            order.payment.events.push({
+                type: 'PAYMENT',
+                total_amount: order.payment.total_amount,
+                status: EPaymentStatus.REFUNDED,
+                method: order.payment.method,
+                channel: order.payment.channel,
+                account_number: order.payment.account_number,
+                event_type: EPaymentEventType.REFUNDED,
+                timestamp: new Date().toISOString()
+            });
+        }
 
         return this.cancelOrder(order, email);
     }
