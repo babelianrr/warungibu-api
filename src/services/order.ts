@@ -461,10 +461,7 @@ export class OrderService implements IOrderService {
 
     public async updatePayment(orderData: IOrderUpdateRequest): Promise<Orders> {
         const order = await this.repository.findByIdForUser(orderData.user_id, orderData.id);
-        const user = await this.userRepository.findOneWithOutlets({
-            where: { id: orderData.user_id },
-            relations: ['outlets']
-        });
+        const user = await this.userRepository.findOne(orderData.user_id);
 
         if (!order) {
             throw new ErrorObject(ErrorCodes.ORDER_NOT_FOUND_ERROR, 'Transaksi tidak ditemukan');
@@ -475,9 +472,9 @@ export class OrderService implements IOrderService {
         }
 
         const existingPayment = order.payment;
-        if (existingPayment.type === EPaymentType.LOAN) {
-            throw new ErrorObject(ErrorCodes.UPDATE_ORDER_ERROR, 'Transaksi COD tidak dapat diubah');
-        }
+        // if (existingPayment.type === EPaymentType.LOAN) {
+        //     throw new ErrorObject(ErrorCodes.UPDATE_ORDER_ERROR, 'Transaksi COD tidak dapat diubah');
+        // }
 
         const productPrice = existingPayment.product_price;
         const paymentType = existingPayment.type;

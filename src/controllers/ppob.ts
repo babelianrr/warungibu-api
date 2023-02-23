@@ -199,6 +199,19 @@ export class PpobController {
             }
 
             if (data.status === 'Sukses') {
+                await this.orderService.updatePayment({
+                    id: order.payment.id,
+                    user_id: req.user.id,
+                    payment: {
+                        total_price: order.payment.total_amount,
+                        payment_method: order.payment.method,
+                        payment_channel: order.payment.channel,
+                        account_name: order.payment.account_name,
+                        account_number: order.payment.account_number,
+                        account_bank: order.payment.account_bank,
+                        reference_number: data.sn
+                    }
+                });
                 await this.orderService.completeOrder(req.user.id, order.id, req.user.email);
             }
 
