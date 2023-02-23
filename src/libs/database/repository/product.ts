@@ -374,7 +374,7 @@ export class ProductRepository extends Repository<Products> {
     deleteSync(payload: string[]): Promise<any> {
         return this.createQueryBuilder()
             .update(Products)
-            .set({ status: ProductStatuses.INACTIVE })
+            .set({ status: ProductStatuses.INACTIVE, sku_number: '' })
             .where('sku_number NOT IN (:payload)', { payload })
             .andWhere('product_type = :type', { type: EProductTypes.PPOB })
             .execute();
