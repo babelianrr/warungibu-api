@@ -276,6 +276,7 @@ export class PpobController {
                     }
                 })
             );
+
             return res.status(200).json({ message: 'Successfully synched data', data: result.data });
         } catch (err) {
             return next(err);
