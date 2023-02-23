@@ -379,7 +379,7 @@ export class ProductRepository extends Repository<Products> {
             .andWhere(
                 new Brackets((qb) => {
                     qb.where('sku_number NOT IN (:sku_number)', { sku_number }).orWhere(
-                        'seller_name NOT IN (:seller_name)',
+                        'company_name NOT IN (:seller_name)',
                         { seller_name }
                     );
                 })
