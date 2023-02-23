@@ -236,7 +236,7 @@ export class PpobController {
             const result = await this.ppobService.syncDataAdmin();
 
             if (result.kept_data.length !== 0) {
-                await this.productService.deleteSync(result.kept_data);
+                await this.productService.deleteSync(result.kept_data, result.kept_seller);
             }
 
             await Promise.all(

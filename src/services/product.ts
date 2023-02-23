@@ -42,7 +42,7 @@ export interface IProductRepo {
     findPromotionForProductById(productid: string): Promise<any[]>;
     findProductImagesForProductById(productid: string): Promise<any[]>;
     findPromotionHeaderForProductById(productid: string): Promise<any[]>;
-    deleteSync(payload: string[]): Promise<any>;
+    deleteSync(payload: string[], seller_name: string[]): Promise<any>;
 }
 
 export class ProductService {
@@ -508,7 +508,7 @@ export class ProductService {
         return `${slug}-${new Date().getTime()}`;
     }
 
-    public async deleteSync(payload: string[]): Promise<any> {
-        return this.repository.deleteSync(payload);
+    public async deleteSync(sku_number: string[], seller_name: string[]): Promise<any> {
+        return this.repository.deleteSync(sku_number, seller_name);
     }
 }

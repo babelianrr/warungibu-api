@@ -72,6 +72,7 @@ export class PpobService {
 
         let data: any[];
         let notRemovedBicartData: string[];
+        let notRemovedBySeller: string[];
 
         const existingData = await this.findForAdmin();
 
@@ -120,7 +121,13 @@ export class PpobService {
                 })
             );
 
-            await this.repository.deleteSync(notRemovedBicartData);
+            notRemovedBySeller = await Promise.all(
+                checkDiff.map((v: any, k: number) => {
+                    return v.seller_name;
+                })
+            );
+
+            await this.repository.deleteSync(notRemovedBicartData, notRemovedBySeller);
 
             await Promise.all(
                 data.map(async (v: any, k: number) => {
@@ -129,7 +136,7 @@ export class PpobService {
             );
         }
 
-        return { data, kept_data: notRemovedBicartData };
+        return { data, kept_data: notRemovedBicartData, kept_seller: notRemovedBySeller };
     }
 
     private hashCustomerName(name: string, len?: number): string {
