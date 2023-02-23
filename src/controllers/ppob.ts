@@ -192,7 +192,7 @@ export class PpobController {
                 buyer_sku_code: req.body.buyer_sku_code,
                 customer_no: req.body.customer_no
             });
-            const order = await this.orderService.findByTransactionNumber(data.ref_id);
+            const order = await this.orderService.findByTransactionNumber(req.params.ref_id);
 
             if (data.status === 'Gagal') {
                 await this.orderService.cancelOrderUser(order.id, req.user.id, req.user.email);
@@ -200,7 +200,7 @@ export class PpobController {
 
             if (data.status === 'Sukses') {
                 await this.orderService.updatePayment({
-                    id: order.payment.id,
+                    id: order.id,
                     user_id: req.user.id,
                     payment: {
                         total_price: order.payment.total_amount,
