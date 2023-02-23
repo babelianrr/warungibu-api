@@ -79,6 +79,7 @@ export interface IOrderUpdateRequest {
         account_name: string;
         account_number: string;
         account_bank: string;
+        reference_number?: string;
     };
 }
 
