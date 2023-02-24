@@ -238,7 +238,7 @@ export class PpobController {
             if (result.length !== 0) {
                 await Promise.all(
                     result.map(async (v: Ppob) => {
-                        const product = await this.productService.findPpobByProductSku(v);
+                        const product = await this.productService.findPpobByProductSku(v.buyer_sku_code);
                         if (product) {
                             if (
                                 product.sku_number === v.buyer_sku_code &&
@@ -312,7 +312,6 @@ export class PpobController {
             await this.productService.updateProduct(
                 {
                     id: product.id,
-                    name: req.body.product_name,
                     status: req.body.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
                     price: req.body.sell_price
                 },
