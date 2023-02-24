@@ -125,13 +125,12 @@ export class PpobController {
 
             if (match) {
                 const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
-                const buyerSkuCode = `${result.buyer_sku_code}`.toUpperCase();
-                const product = await this.productService.findPpobByProductSku(buyerSkuCode);
+                const product = await this.productService.findPpobByProductSku(req.body.buyer_sku_code);
                 const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
 
                 if (!product) {
                     throw new ErrorObject('404', 'Produk tidak ditemukan', {
-                        buyer_sku_code: buyerSkuCode
+                        buyer_sku_code: req.body.buyer_sku_code
                     });
                 }
 
@@ -143,10 +142,6 @@ export class PpobController {
                         quantity: 1,
                         user_id: req.user.id
                     });
-
-                    // const { sn } = result;
-                    // const snArr = sn !== '' ? sn.split('/') : [];
-                    // const token = sn !== '' ? snArr[0] : '';
 
                     order = await this.orderService.createPpobOrder({
                         shipment: {
@@ -194,6 +189,46 @@ export class PpobController {
             });
             const order = await this.orderService.findByTransactionNumber(req.params.ref_id);
 
+            // if (!order) {
+            //     if (data.status === 'Sukses' || data.status === 'Pending') {
+            //         const product = await this.productService.findPpobByProductSku(req.body.buyer_sku_code);
+
+            //         const inquiry = await this.ppobService.checkoutForUser(
+            //             req.body.customer_no,
+            //             req.body.buyer_sku_code
+            //         );
+
+            //         const cart = await this.cartService.addToCart({
+            //             product_id: product.id,
+            //             location: 'Gudang',
+            //             quantity: 1,
+            //             user_id: req.user.id
+            //         });
+
+            //         await this.orderService.createPpobOrder({
+            //             shipment: {
+            //                 location: 'Gudang'
+            //             },
+            //             payment: {
+            //                 total_price: product.price,
+            //                 account_name: inquiry.name,
+            //                 account_number: req.body.customer_no,
+            //                 account_bank: req.body.buyer_sku_code.toUpperCase(),
+            //                 payment_type: EPaymentType.LOAN,
+            //                 payment_method: EPaymentMethod.LOAN,
+            //                 reference_number: data.sn,
+            //                 payment_reference_number: inquiry.subscriber_id,
+            //                 payment_channel: inquiry.segment_power
+            //             },
+            //             user_id: req.user.id,
+            //             carts: [cart.id],
+            //             ref_id: data.ref_id,
+            //             sn: data.sn,
+            //             status: data.status
+            //         });
+            //     }
+            // }
+
             if (data.status === 'Gagal') {
                 await this.orderService.cancelOrderUser(order.id, req.user.id, req.user.email);
             }
@@ -235,9 +270,27 @@ export class PpobController {
         try {
             const result = await this.ppobService.syncDataAdmin();
 
-            if (result.length !== 0) {
+            if (result.removedData.length !== 0) {
                 await Promise.all(
-                    result.map(async (v: Ppob) => {
+                    result.removedData.map(async (v: any) => {
+                        const deactivateProduct = await this.productService.findPpobByProductSku(v.buyer_sku_code);
+                        const ppob = await this.ppobService.findOne(v.buyer_sku_code);
+                        if (deactivateProduct && !ppob) {
+                            await this.productService.updateProduct(
+                                {
+                                    id: deactivateProduct.id,
+                                    status: ProductStatuses.INACTIVE
+                                },
+                                req.user.role
+                            );
+                        }
+                    })
+                );
+            }
+
+            if (result.data.length !== 0) {
+                await Promise.all(
+                    result.data.map(async (v: Ppob) => {
                         const product = await this.productService.findPpobByProductSku(v.buyer_sku_code);
                         if (product) {
                             if (
@@ -250,7 +303,7 @@ export class PpobController {
                                         id: product.id,
                                         sku_number: v.buyer_sku_code,
                                         company_name: v.seller_name,
-                                        status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
+                                        status: ProductStatuses.ACTIVE,
                                         price: v.sell_price
                                     },
                                     req.user.role
@@ -273,7 +326,7 @@ export class PpobController {
                                             stock: 9999
                                         }
                                     ],
-                                    status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE
+                                    status: ProductStatuses.ACTIVE
                                 },
                                 req.user.role
                             );
@@ -283,7 +336,7 @@ export class PpobController {
                     })
                 );
             }
-            return res.status(200).json({ message: 'Successfully synched data', result });
+            return res.status(200).json({ message: 'Successfully synched data', result: result.data });
         } catch (err) {
             return next(err);
         }

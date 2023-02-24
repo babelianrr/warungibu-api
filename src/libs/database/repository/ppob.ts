@@ -5,7 +5,7 @@ import { EntityRepository, Repository } from 'typeorm';
 
 export interface IPpobRepo {
     find(options?: any): Promise<Ppob[]>;
-    findWithExclusion(options?: any): Promise<Ppob[]>;
+    findWithExclusion(options?: any): Promise<any[]>;
     findOne(id?: string): Promise<Ppob>;
     findOneWithOption(options: any): Promise<Ppob>;
     findOneByOption(payload: any): Promise<Ppob>;
@@ -34,7 +34,7 @@ export class PpobRepository extends Repository<Ppob> {
             .getOne();
     }
 
-    findWithExclusion(): Promise<Ppob[]> {
+    findWithExclusion(): Promise<any[]> {
         return this.find({
             select: [
                 'product_name',
