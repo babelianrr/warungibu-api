@@ -143,10 +143,6 @@ export class PpobController {
                         user_id: req.user.id
                     });
 
-                    // const { sn } = result;
-                    // const snArr = sn !== '' ? sn.split('/') : [];
-                    // const token = sn !== '' ? snArr[0] : '';
-
                     order = await this.orderService.createPpobOrder({
                         shipment: {
                             location: 'Gudang'
@@ -192,6 +188,46 @@ export class PpobController {
                 customer_no: req.body.customer_no
             });
             const order = await this.orderService.findByTransactionNumber(req.params.ref_id);
+
+            // if (!order) {
+            //     if (data.status === 'Sukses' || data.status === 'Pending') {
+            //         const product = await this.productService.findPpobByProductSku(req.body.buyer_sku_code);
+
+            //         const inquiry = await this.ppobService.checkoutForUser(
+            //             req.body.customer_no,
+            //             req.body.buyer_sku_code
+            //         );
+
+            //         const cart = await this.cartService.addToCart({
+            //             product_id: product.id,
+            //             location: 'Gudang',
+            //             quantity: 1,
+            //             user_id: req.user.id
+            //         });
+
+            //         await this.orderService.createPpobOrder({
+            //             shipment: {
+            //                 location: 'Gudang'
+            //             },
+            //             payment: {
+            //                 total_price: product.price,
+            //                 account_name: inquiry.name,
+            //                 account_number: req.body.customer_no,
+            //                 account_bank: req.body.buyer_sku_code.toUpperCase(),
+            //                 payment_type: EPaymentType.LOAN,
+            //                 payment_method: EPaymentMethod.LOAN,
+            //                 reference_number: data.sn,
+            //                 payment_reference_number: inquiry.subscriber_id,
+            //                 payment_channel: inquiry.segment_power
+            //             },
+            //             user_id: req.user.id,
+            //             carts: [cart.id],
+            //             ref_id: data.ref_id,
+            //             sn: data.sn,
+            //             status: data.status
+            //         });
+            //     }
+            // }
 
             if (data.status === 'Gagal') {
                 await this.orderService.cancelOrderUser(order.id, req.user.id, req.user.email);
