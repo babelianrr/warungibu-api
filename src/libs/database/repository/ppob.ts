@@ -15,7 +15,7 @@ export interface IPpobRepo {
     upsertData(payload: any): Promise<any>;
     updateData(payload: any, id: string): Promise<any>;
     delete(id: string): Promise<any>;
-    deleteSync(payload: string[]): Promise<any>;
+    deleteSync(buyer_sku_code: string[], seller_name: string[]): Promise<any>;
 }
 
 @EntityRepository(Ppob)
@@ -112,11 +112,12 @@ export class PpobRepository extends Repository<Ppob> {
         return this.createQueryBuilder().update(Ppob).set(payload).where('id = :id', { id }).execute();
     }
 
-    deleteSync(payload: string[]): Promise<any> {
+    deleteSync(buyer_sku_code: string[], seller_name: string[]): Promise<any> {
         return this.createQueryBuilder()
             .delete()
             .from(Ppob)
-            .where('buyer_sku_code NOT IN (:payload)', { payload })
+            .where('buyer_sku_code NOT IN (:buyer_sku_code)', { buyer_sku_code })
+            .orWhere('seller_name NOT IN (:seller_name)', { seller_name })
             .execute();
     }
 }

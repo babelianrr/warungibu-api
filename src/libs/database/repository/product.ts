@@ -376,12 +376,19 @@ export class ProductRepository extends Repository<Products> {
             .getMany();
     }
 
-    deleteSync(payload: any): Promise<any> {
+    deleteSync(sku_number: string[], seller_name: string[]): Promise<any> {
         return this.createQueryBuilder()
             .update(Products)
-            .set({ status: ProductStatuses.INACTIVE })
-            .where('sku_number NOT IN (:payload)', { payload })
-            .andWhere('product_type = :type', { type: EProductTypes.PPOB })
+            .set({ status: ProductStatuses.INACTIVE, sku_number: '' })
+            .where('product_type = :type', { type: EProductTypes.PPOB })
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where('sku_number NOT IN (:sku_number)', { sku_number }).orWhere(
+                        'company_name NOT IN (:seller_name)',
+                        { seller_name }
+                    );
+                })
+            )
             .execute();
     }
 }
