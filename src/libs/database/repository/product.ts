@@ -70,15 +70,11 @@ export class ProductRepository extends Repository<Products> {
             .getOne();
     }
 
-    findPpobByProductSku(payload: Ppob) {
+    findPpobByProductSku(payload: string) {
         return this.createQueryBuilder('product')
             .where('product.product_type = :type', { type: EProductTypes.PPOB })
-            .andWhere('product.sku_number = :sku', { sku: payload.buyer_sku_code })
+            .andWhere('product.sku_number = :sku', { sku: payload })
             .getOne();
-
-        /* 
-            .andWhere('product.name = :product_name', { product_name: payload.product_name })
-            .andWhere('product.company_name = :seller_name', { seller_name: payload.seller_name }) */
     }
 
     findTopProduct(limit?: number) {

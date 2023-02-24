@@ -21,6 +21,7 @@ import { ProductImageRepository } from 'src/libs/database/repository/product_ima
 import { BASE_URL } from 'src/config';
 import { IProductReviewRepo } from 'src/libs/database/repository/product_review';
 import { ERoleStatus } from 'src/models/Users';
+import { Ppob } from 'src/models/ppobs';
 import { IOrderService } from './order';
 import { ICartRepo } from './cart';
 
@@ -29,7 +30,7 @@ export interface IProductRepo {
     findOne(query: any): Promise<Products>;
     findTopProduct(limit?: number): Promise<Products[]>;
     findByProductSku(product_sku: string): Promise<Products>;
-    findPpobByProductSku(payload: any): Promise<Products>;
+    findPpobByProductSku(payload: string): Promise<Products>;
     create(productData: any): Products;
     save(product: Products): Promise<Products>;
     countAll(isAdmin: boolean, query?: any): Promise<any>;
@@ -220,7 +221,7 @@ export class ProductService {
         return this.repository.findByProductSku(product_sku);
     }
 
-    public async findPpobByProductSku(payload: any): Promise<Products> {
+    public async findPpobByProductSku(payload: string): Promise<Products> {
         return this.repository.findPpobByProductSku(payload);
     }
 
