@@ -235,48 +235,55 @@ export class PpobController {
         try {
             const result = await this.ppobService.syncDataAdmin();
 
-            if (result.kept_data.length !== 0) {
-                await this.productService.deleteSync(result.kept_data);
-            }
-
-            await Promise.all(
-                result.data.map(async (v: Ppob) => {
-                    const product = await this.productService.findPpobByProductSku(v.buyer_sku_code);
-                    if (product) {
-                        await this.productService.updateProduct(
-                            {
-                                id: product.id,
-                                name: v.product_name,
-                                status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
-                                price: v.sell_price
-                            },
-                            req.user.role
-                        );
-                    } else {
-                        await this.productService.createNewProduct(
-                            {
-                                name: v.product_name,
-                                sku_number: v.buyer_sku_code,
-                                company_name: v.seller_name,
-                                unit: 'UNIT',
-                                price: v.sell_price,
-                                valid_to: addDays(Date.now(), 365).toISOString(),
-                                product_type: EProductTypes.PPOB,
-                                branches: [
+            if (result.length !== 0) {
+                await Promise.all(
+                    result.map(async (v: Ppob) => {
+                        const product = await this.productService.findPpobByProductSku(v);
+                        if (product) {
+                            if (
+                                product.sku_number === v.buyer_sku_code &&
+                                product.name === v.product_name &&
+                                product.company_name !== v.seller_name
+                            ) {
+                                await this.productService.updateProduct(
                                     {
-                                        branch_code: '1204',
-                                        location: 'Gudang',
-                                        stock: 9999
-                                    }
-                                ],
-                                status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE
-                            },
-                            req.user.role
-                        );
-                    }
-                })
-            );
-            return res.status(200).json({ message: 'Successfully synched data', data: result.data });
+                                        id: product.id,
+                                        sku_number: v.buyer_sku_code,
+                                        company_name: v.seller_name,
+                                        status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
+                                        price: v.sell_price
+                                    },
+                                    req.user.role
+                                );
+                            }
+                        } else {
+                            const newPpob = await this.productService.createNewProduct(
+                                {
+                                    name: v.product_name,
+                                    sku_number: v.buyer_sku_code,
+                                    company_name: v.seller_name,
+                                    unit: 'UNIT',
+                                    price: v.price,
+                                    valid_to: addDays(Date.now(), 365).toISOString(),
+                                    product_type: EProductTypes.PPOB,
+                                    branches: [
+                                        {
+                                            branch_code: '1204',
+                                            location: 'Gudang',
+                                            stock: 9999
+                                        }
+                                    ],
+                                    status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE
+                                },
+                                req.user.role
+                            );
+
+                            await this.productService.updatePpobImage(newPpob.id);
+                        }
+                    })
+                );
+            }
+            return res.status(200).json({ message: 'Successfully synched data', result });
         } catch (err) {
             return next(err);
         }

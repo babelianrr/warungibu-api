@@ -29,7 +29,7 @@ export interface IProductRepo {
     findOne(query: any): Promise<Products>;
     findTopProduct(limit?: number): Promise<Products[]>;
     findByProductSku(product_sku: string): Promise<Products>;
-    findPpobByProductSku(product_sku: string): Promise<Products>;
+    findPpobByProductSku(payload: any): Promise<Products>;
     create(productData: any): Products;
     save(product: Products): Promise<Products>;
     countAll(isAdmin: boolean, query?: any): Promise<any>;
@@ -42,7 +42,7 @@ export interface IProductRepo {
     findPromotionForProductById(productid: string): Promise<any[]>;
     findProductImagesForProductById(productid: string): Promise<any[]>;
     findPromotionHeaderForProductById(productid: string): Promise<any[]>;
-    deleteSync(payload: string[]): Promise<any>;
+    deleteSync(payload: any): Promise<any>;
 }
 
 export class ProductService {
@@ -220,8 +220,8 @@ export class ProductService {
         return this.repository.findByProductSku(product_sku);
     }
 
-    public async findPpobByProductSku(product_sku: string): Promise<Products> {
-        return this.repository.findPpobByProductSku(product_sku);
+    public async findPpobByProductSku(payload: any): Promise<Products> {
+        return this.repository.findPpobByProductSku(payload);
     }
 
     public async countAll(isAdmin: boolean, query?: any): Promise<any> {
@@ -384,6 +384,23 @@ export class ProductService {
         return this.repository.save(product);
     }
 
+    public async updatePpobImage(id: string): Promise<Products> {
+        const product = await this.repository.findOne(id);
+
+        if (!product) {
+            throw new ErrorObject(ErrorCodes.PRODUCT_NOT_FOUND_ERROR, 'Produk tidak ditemukan');
+        }
+
+        const image = await this.imageRepository.create({
+            url: `${BASE_URL}assets/token-listrik.png`,
+            product_id: product.id
+        });
+
+        product.images.push(image);
+
+        return this.repository.save(product);
+    }
+
     public async removeProductImage(imageId: string): Promise<void> {
         const image = await this.imageRepository.findOne(imageId);
 
@@ -508,7 +525,7 @@ export class ProductService {
         return `${slug}-${new Date().getTime()}`;
     }
 
-    public async deleteSync(payload: string[]): Promise<any> {
+    public async deleteSync(payload: any): Promise<any> {
         return this.repository.deleteSync(payload);
     }
 }

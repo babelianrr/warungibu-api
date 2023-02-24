@@ -8,6 +8,7 @@ export interface IPpobRepo {
     findWithExclusion(options?: any): Promise<Ppob[]>;
     findOne(id?: string): Promise<Ppob>;
     findOneWithOption(options: any): Promise<Ppob>;
+    findOneByOption(payload: any): Promise<Ppob>;
     findForUser(category?: any): Promise<Ppob[]>;
     findCategory(clause?: any): Promise<Ppob[]>;
     insertData(payload: any): Promise<any>;
@@ -23,6 +24,14 @@ export class PpobRepository extends Repository<Ppob> {
         return this.findOne({
             where: options
         });
+    }
+
+    findOneByOption(payload: any): Promise<Ppob> {
+        return this.createQueryBuilder('ppob')
+            .where('ppob.buyer_sku_code = :buyer_sku_code', { buyer_sku_code: payload.buyer_sku_code })
+            .andWhere('ppob.product_name = :product_name', { product_name: payload.product_name })
+            .andWhere('ppob.seller_name = :seller_name', { seller_name: payload.seller_name })
+            .getOne();
     }
 
     findWithExclusion(): Promise<Ppob[]> {
@@ -93,7 +102,7 @@ export class PpobRepository extends Repository<Ppob> {
                 ],
                 ['buyer_sku_code'],
                 {
-                    skipUpdateIfNoValuesChanged: false
+                    skipUpdateIfNoValuesChanged: true
                 }
             )
             .execute();

@@ -55,6 +55,8 @@ export interface IProductCreateRequest {
 export interface IProductUpdateRequest {
     id: string;
     name?: string;
+    sku_number?: string;
+    company_name?: string;
     description?: string;
     unit?: string;
     discount_percentage?: number;
