@@ -7,6 +7,7 @@ import { PromotionsProducts } from 'src/models/promotion-product';
 import { EntityRepository, Repository, Brackets, getRepository, getManager } from 'typeorm';
 import { Promotions } from 'src/models/promotion';
 import { ProductImages } from 'src/models/Product-Images';
+import { Ppob } from 'src/models/ppobs';
 
 export interface IQueryProducts {
     name?: string;
@@ -69,11 +70,15 @@ export class ProductRepository extends Repository<Products> {
             .getOne();
     }
 
-    findPpobByProductSku(product_sku: string) {
+    findPpobByProductSku(payload: Ppob) {
         return this.createQueryBuilder('product')
-            .where('product.sku_number = :sku', { sku: product_sku })
-            .andWhere('product.product_type = :type', { type: EProductTypes.PPOB })
+            .where('product.product_type = :type', { type: EProductTypes.PPOB })
+            .andWhere('product.sku_number = :sku', { sku: payload.buyer_sku_code })
             .getOne();
+
+        /* 
+            .andWhere('product.name = :product_name', { product_name: payload.product_name })
+            .andWhere('product.company_name = :seller_name', { seller_name: payload.seller_name }) */
     }
 
     findTopProduct(limit?: number) {

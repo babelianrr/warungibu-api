@@ -13,6 +13,7 @@ import { Ppob } from 'src/models/ppobs';
 import { OrderRepository } from 'src/libs/database/repository/order';
 import { generateTransactionNumber } from 'src/libs/helpers/generate-trx-number';
 import { IPpobRepo } from 'src/libs/database/repository/ppob';
+import md5 from 'md5';
 
 export class PpobService {
     private repository: IPpobRepo;
@@ -25,10 +26,14 @@ export class PpobService {
     }
 
     public async fetchDigiflazz(): Promise<any> {
-        const digiflazz = new Digiflazz(DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY);
-        const result = await digiflazz.daftarHarga();
+        // const digiflazz = new Digiflazz(DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY);
+        const result = await axios.post('https://api.digiflazz.com/v1/price-list', {
+            cmd: 'prepaid',
+            username: DIGIFLAZZ_USERNAME,
+            sign: md5(`${DIGIFLAZZ_USERNAME}${DIGIFLAZZ_API_KEY}depo`)
+        });
 
-        return result;
+        return result.data.data;
     }
 
     public async findForAdmin(): Promise<Ppob[]> {
@@ -69,74 +74,37 @@ export class PpobService {
 
     public async syncDataAdmin(): Promise<any> {
         const result = await this.fetchDigiflazz();
+        const data = _.filter(result, (o) => {
+            return o.buyer_product_status === true;
+        });
 
-        let data: any[];
-        let notRemovedBicartData: string[];
-        let notRemovedBySeller: string[];
+        const datas = await Promise.all(
+            data.map(async (v: any) => {
+                const ppob = await this.repository.findOneByOption({
+                    product_name: v.product_name,
+                    buyer_sku_code: v.buyer_sku_code,
+                    seller_name: v.seller_name
+                });
 
-        const existingData = await this.findForAdmin();
+                if (!ppob) {
+                    return {
+                        ...v,
+                        sell_price: v.price,
+                        active: false
+                    };
+                }
 
-        if (!existingData) {
-            const datas: any[] = result;
-            data = datas.map((v: any, k: number) => {
-                return {
-                    ...v,
-                    sell_price: v.price,
-                    active: false
-                };
-            });
+                return ppob;
+            })
+        );
 
-            await Promise.all(
-                data.map(async (v: any, k: number) => {
-                    await this.repository.upsertData(v);
-                })
-            );
-        } else {
-            const datas: any[] = result;
-            const bicartData = await this.repository.findWithExclusion();
+        await Promise.all(
+            datas.map(async (v: any) => {
+                await this.repository.upsertData(v);
+            })
+        );
 
-            data = await Promise.all(
-                datas.map(async (v: any, k: number) => {
-                    const ppob = await this.repository.findOneWithOption({
-                        buyer_sku_code: v.buyer_sku_code
-                    });
-
-                    if (!ppob) {
-                        return {
-                            ...v,
-                            sell_price: v.price,
-                            active: false
-                        };
-                    }
-
-                    return ppob;
-                })
-            );
-
-            const checkDiff = _.difference(datas, bicartData);
-
-            notRemovedBicartData = await Promise.all(
-                checkDiff.map((v: any, k: number) => {
-                    return v.buyer_sku_code;
-                })
-            );
-
-            notRemovedBySeller = await Promise.all(
-                checkDiff.map((v: any, k: number) => {
-                    return v.seller_name;
-                })
-            );
-
-            await this.repository.deleteSync(notRemovedBicartData, notRemovedBySeller);
-
-            await Promise.all(
-                data.map(async (v: any, k: number) => {
-                    await this.repository.upsertData(v);
-                })
-            );
-        }
-
-        return { data, kept_data: notRemovedBicartData, kept_seller: notRemovedBySeller };
+        return datas;
     }
 
     private hashCustomerName(name: string, len?: number): string {
