@@ -125,13 +125,12 @@ export class PpobController {
 
             if (match) {
                 const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
-                const buyerSkuCode = `${result.buyer_sku_code}`.toUpperCase();
-                const product = await this.productService.findPpobByProductSku(buyerSkuCode);
+                const product = await this.productService.findPpobByProductSku(req.body.buyer_sku_code);
                 const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
 
                 if (!product) {
                     throw new ErrorObject('404', 'Produk tidak ditemukan', {
-                        buyer_sku_code: buyerSkuCode
+                        buyer_sku_code: req.body.buyer_sku_code
                     });
                 }
 
