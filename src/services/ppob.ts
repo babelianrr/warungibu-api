@@ -94,7 +94,25 @@ export class PpobService {
                     };
                 }
 
-                return ppob;
+                return {
+                    product_name: ppob.product_name,
+                    category: ppob.category,
+                    brand: ppob.brand,
+                    type: ppob.type,
+                    seller_name: ppob.seller_name,
+                    price: ppob.price,
+                    sell_price: v.price < ppob.sell_price ? ppob.sell_price : v.price,
+                    buyer_sku_code: ppob.buyer_sku_code,
+                    buyer_product_status: ppob.buyer_product_status,
+                    seller_product_status: ppob.seller_product_status,
+                    unlimited_stock: ppob.unlimited_stock,
+                    stock: ppob.stock,
+                    multi: ppob.multi,
+                    start_cut_off: ppob.start_cut_off,
+                    end_cut_off: ppob.end_cut_off,
+                    desc: ppob.desc,
+                    active: ppob.active
+                };
             })
         );
 
