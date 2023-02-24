@@ -270,9 +270,27 @@ export class PpobController {
         try {
             const result = await this.ppobService.syncDataAdmin();
 
-            if (result.length !== 0) {
+            if (result.removedData.length !== 0) {
                 await Promise.all(
-                    result.map(async (v: Ppob) => {
+                    result.removedData.map(async (v: any) => {
+                        const deactivateProduct = await this.productService.findPpobByProductSku(v.buyer_sku_code);
+                        const ppob = await this.ppobService.findOne(v.buyer_sku_code);
+                        if (deactivateProduct && !ppob) {
+                            await this.productService.updateProduct(
+                                {
+                                    id: deactivateProduct.id,
+                                    status: ProductStatuses.INACTIVE
+                                },
+                                req.user.role
+                            );
+                        }
+                    })
+                );
+            }
+
+            if (result.data.length !== 0) {
+                await Promise.all(
+                    result.data.map(async (v: Ppob) => {
                         const product = await this.productService.findPpobByProductSku(v.buyer_sku_code);
                         if (product) {
                             if (
@@ -285,7 +303,7 @@ export class PpobController {
                                         id: product.id,
                                         sku_number: v.buyer_sku_code,
                                         company_name: v.seller_name,
-                                        status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE,
+                                        status: ProductStatuses.ACTIVE,
                                         price: v.sell_price
                                     },
                                     req.user.role
@@ -308,7 +326,7 @@ export class PpobController {
                                             stock: 9999
                                         }
                                     ],
-                                    status: v.active === true ? ProductStatuses.ACTIVE : ProductStatuses.INACTIVE
+                                    status: ProductStatuses.ACTIVE
                                 },
                                 req.user.role
                             );
@@ -318,7 +336,7 @@ export class PpobController {
                     })
                 );
             }
-            return res.status(200).json({ message: 'Successfully synched data', result });
+            return res.status(200).json({ message: 'Successfully synched data', result: result.data });
         } catch (err) {
             return next(err);
         }

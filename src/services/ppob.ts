@@ -74,55 +74,54 @@ export class PpobService {
 
     public async syncDataAdmin(): Promise<any> {
         const result = await this.fetchDigiflazz();
-        const data = _.filter(result, (o) => {
-            return o.buyer_product_status === true;
-        });
+        const removedData = [];
 
-        const datas = await Promise.all(
-            data.map(async (v: any) => {
+        await Promise.all(
+            result.map(async (v: any) => {
                 const ppob = await this.repository.findOneByOption({
                     product_name: v.product_name,
                     buyer_sku_code: v.buyer_sku_code,
                     seller_name: v.seller_name
                 });
 
-                if (!ppob) {
-                    return {
+                if (!ppob && v) {
+                    await this.repository.upsertData({
                         ...v,
                         sell_price: v.price,
-                        active: false
-                    };
+                        active: v.buyer_product_status
+                    });
                 }
 
-                return {
-                    product_name: ppob.product_name,
-                    category: ppob.category,
-                    brand: ppob.brand,
-                    type: ppob.type,
-                    seller_name: ppob.seller_name,
-                    price: ppob.price,
-                    sell_price: v.price < ppob.sell_price ? ppob.sell_price : v.price,
-                    buyer_sku_code: ppob.buyer_sku_code,
-                    buyer_product_status: ppob.buyer_product_status,
-                    seller_product_status: ppob.seller_product_status,
-                    unlimited_stock: ppob.unlimited_stock,
-                    stock: ppob.stock,
-                    multi: ppob.multi,
-                    start_cut_off: ppob.start_cut_off,
-                    end_cut_off: ppob.end_cut_off,
-                    desc: ppob.desc,
-                    active: ppob.active
-                };
+                if (ppob && v) {
+                    await this.repository.upsertData({
+                        product_name: ppob.product_name,
+                        category: ppob.category,
+                        brand: ppob.brand,
+                        type: ppob.type,
+                        seller_name: ppob.seller_name,
+                        price: ppob.price,
+                        sell_price: v.price < ppob.sell_price ? ppob.sell_price : v.price,
+                        buyer_sku_code: ppob.buyer_sku_code,
+                        buyer_product_status: ppob.buyer_product_status,
+                        seller_product_status: ppob.seller_product_status,
+                        unlimited_stock: ppob.unlimited_stock,
+                        stock: ppob.stock,
+                        multi: ppob.multi,
+                        start_cut_off: ppob.start_cut_off,
+                        end_cut_off: ppob.end_cut_off,
+                        desc: ppob.desc,
+                        active: ppob.buyer_product_status
+                    });
+                }
+
+                if (ppob && !v) {
+                    removedData.push(ppob);
+                    await this.repository.delete(ppob.id);
+                }
             })
         );
 
-        await Promise.all(
-            datas.map(async (v: any) => {
-                await this.repository.upsertData(v);
-            })
-        );
-
-        return datas;
+        return { data: result, removedData };
     }
 
     private hashCustomerName(name: string, len?: number): string {
