@@ -73,7 +73,6 @@ import { OutletRepository } from './libs/database/repository/outlet';
 import { OutletAddressRepository } from './libs/database/repository/outlet_address';
 import { CartBatchRepository } from './libs/database/repository/carts-batch';
 
-import { DNR } from './clients/dnr/dnr';
 import { SendGrid } from './clients/sendgrid/sendgrid';
 import { ReportService } from './services/report';
 import { ReportController } from './controllers/report';
@@ -88,7 +87,6 @@ export async function init(): Promise<Record<string, any>> {
     const environment = NODE_ENV;
 
     // client
-    const dnr = new DNR();
     const sendGrid = new SendGrid();
     const firebase = new FirebaseAdmin(CERT_FILE);
 
@@ -131,7 +129,6 @@ export async function init(): Promise<Record<string, any>> {
         outletService,
         outletAddressService,
         outletTypeRepository,
-        dnr,
         sendGrid,
         firebase,
         orderRepository

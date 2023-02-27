@@ -14,14 +14,12 @@ import { Branches } from 'src/models/branches';
 import { IQueryProducts } from 'src/libs/database/repository/product';
 import { CategoryRepository } from 'src/libs/database/repository/category';
 import { IUserRepo } from 'src/libs/database/repository/user';
-import { DNR } from 'src/clients/dnr/dnr';
 import { ErrorObject } from 'src/libs/error-object';
 import { ErrorCodes } from 'src/libs/errors';
 import { ProductImageRepository } from 'src/libs/database/repository/product_image';
 import { BASE_URL } from 'src/config';
 import { IProductReviewRepo } from 'src/libs/database/repository/product_review';
 import { ERoleStatus } from 'src/models/Users';
-import { Ppob } from 'src/models/ppobs';
 import { IOrderService } from './order';
 import { ICartRepo } from './cart';
 
@@ -61,8 +59,6 @@ export class ProductService {
 
     private reviewRepository: IProductReviewRepo;
 
-    private dnrClient: DNR;
-
     constructor(
         repository: IProductRepo,
         catRep: CategoryRepository,
@@ -74,7 +70,6 @@ export class ProductService {
     ) {
         this.repository = repository;
         this.categoryRepository = catRep;
-        this.dnrClient = new DNR();
         this.orderService = oSrv;
         this.imageRepository = imageRepo;
         this.userRepository = userRepo;
@@ -199,22 +194,6 @@ export class ProductService {
         }
 
         return productWithSales;
-    }
-
-    public async findProductStock(id: string): Promise<any> {
-        const stocks = await this.dnrClient.getProductDetail(id);
-
-        if (!stocks) {
-            return [];
-        }
-
-        return stocks.map((stock) => {
-            return {
-                location: this.dnrClient.getBranch(stock.branch),
-                branch_code: id,
-                stock: stock.stock
-            };
-        });
     }
 
     public async findByProductSku(product_sku: string): Promise<Products> {
@@ -474,46 +453,6 @@ export class ProductService {
         );
 
         return inactiveProduct;
-    }
-
-    public async syncProduct(): Promise<any> {
-        const productResponse = await this.dnrClient.getProducts();
-        const branchesResponse = await this.dnrClient.getBranches();
-
-        const activeSku = [];
-        for (let i = 0; i < productResponse.length; i += 1) {
-            activeSku.push(productResponse[i].product_id);
-
-            const productData = {
-                name: productResponse[i].product_name,
-                sku_number: productResponse[i].product_id,
-                company_name: productResponse[i].company_name,
-                unit: productResponse[i].satuan,
-                price: Number(productResponse[i].price),
-                sap_price: Number(productResponse[i].price),
-                valid_to: productResponse[i].validto,
-                branches: [
-                    {
-                        branch_code: productResponse[i].branch,
-                        stock: Number(productResponse[i].stock),
-                        location: branchesResponse.find((b) => b.kdcab === productResponse[i].branch).nama,
-                        product_sku: productResponse[i].product_id
-                    }
-                ]
-            };
-
-            const product = await this.createOrUpdateFromSAP(productData);
-        }
-
-        const inActive = await this.repository.findInactiveProducts(activeSku);
-        if (inActive.length > 0) {
-            await this.repository.deactivateProduct(inActive.map((product) => product.id));
-        }
-
-        return {
-            active_product: activeSku.length,
-            inactive_product: inActive.length
-        };
     }
 
     // eslint-disable-next-line class-methods-use-this

@@ -2,7 +2,6 @@
 import { getCustomRepository } from 'typeorm';
 
 import '../module-alias';
-import { DNR } from 'src/clients/dnr/dnr';
 import { connect } from 'src/db-connect';
 import { CartRepository } from 'src/libs/database/repository/cart';
 import { OrderRepository } from 'src/libs/database/repository/order';

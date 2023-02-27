@@ -15,7 +15,6 @@ import { formatToTimeZone } from 'date-fns-timezone';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { FirebaseAdmin } from 'src/clients/firebase';
-import { DNR, IDnrCustomerData, ISapCustomer } from 'src/clients/dnr/dnr';
 import { SendGrid } from 'src/clients/sendgrid/sendgrid';
 import { GOOGLE_CLIENT_ID, JWT_SECRET } from 'src/config';
 import xlsx from 'xlsx';
@@ -23,8 +22,6 @@ import { IQueryUsers, IRegisterUser, UserRepository } from 'src/libs/database/re
 import { ErrorObject } from 'src/libs/error-object';
 import { ErrorCodes } from 'src/libs/errors';
 import { ErrorMessages } from 'src/libs/error_message';
-import { mapJabodetabekToProvince } from 'src/libs/helpers/jabodetabek-validation';
-import { EAddressStatus } from 'src/models/Outlet-address';
 import { ELoginProvider, ERoleStatus, Users } from 'src/models/Users';
 import { OrderRepository } from 'src/libs/database/repository/order';
 import { OrderStatuses } from 'src/models/orders';
@@ -74,6 +71,26 @@ interface IResetPinData {
     confirmation_pin: string;
 }
 
+export interface IDnrCustomerData {
+    kdcab: string;
+    kdcust: string;
+    custname: string;
+    custgrp: string;
+    top: any;
+    credit_limit: string;
+    alamat: string;
+    city: string;
+    tgl_create: string;
+    tgl_update: string;
+    status_blokir: string;
+    no_hp: string;
+    izin_cust: string;
+    tgl_izin: string;
+    izin_apj: string;
+    tgl_izin_apj: string;
+    tgl_data: string;
+}
+
 export interface IUserService {
     register(payload: IRegisterUser): Promise<any>;
     loginEmail(payload: ILoginEmail): Promise<any>;
@@ -88,7 +105,6 @@ export interface IUserService {
     updateUserRole(payload: any): Promise<any>;
     updateUserCustomerId(noref_dplus: string, customerId: string): Promise<any>;
     updateUserProfilePicture(authInfo: IPayloadAuthData, payload: any): Promise<any>;
-    updateByCustomerId(email: string, customerId: string): Promise<any>;
     verifiedEmailToken(email: string, token: string): Promise<any>;
     resendEmailVerification(email: string): Promise<void>;
     checkUserVerification(userId: string): Promise<boolean>;
@@ -98,7 +114,6 @@ export interface IUserService {
     countAll(query?: IQueryUsers, payload?: any): Promise<any>;
     sendChatForAdmin(admin: { id: string; email: string }, userId: string, text: string): Promise<any>;
     updateReadChat(userId: string, userLoginId: string): Promise<any>;
-    registerSap(user: IPayloadAuthData): Promise<any>;
     requestPasswordReset(email: string): Promise<boolean>;
     requestPinReset(email: string): Promise<boolean>;
     resetPassword(resetPasswordData: IResetPasswordData): Promise<Users>;
@@ -118,8 +133,6 @@ export class UserService implements IUserService {
 
     googleClient: OAuth2Client;
 
-    dnrClient: DNR;
-
     sendGrid: SendGrid;
 
     outletService: OutletService;
@@ -137,7 +150,6 @@ export class UserService implements IUserService {
         outletService: OutletService,
         outletAddressService: OutletAddressService,
         outletTypeService: OutletTypesRepository,
-        dnrClient: DNR,
         sendGrid: SendGrid,
         fireBase: FirebaseAdmin,
         orderRepo: OrderRepository
@@ -147,7 +159,6 @@ export class UserService implements IUserService {
         this.hashSalt = 10;
         this.jwtSecret = JWT_SECRET;
         this.googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
-        this.dnrClient = dnrClient;
         this.outletAddressService = outletAddressService;
         this.sendGrid = sendGrid;
         this.fireBase = fireBase;
@@ -621,55 +632,6 @@ export class UserService implements IUserService {
         return ERoleStatus.AUTHORIZED_USER;
     }
 
-    async updateByCustomerId(email: string, customerId: string) {
-        const customer = await this.dnrClient.getCustomerDetail(customerId);
-        if (!customer) {
-            throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, ErrorMessages.CUSTOMER_ID_NOT_FOUND_IN_DNR_SYSTEM, {
-                customer_id: customerId
-            });
-        }
-        const user = await this.userRepo.findUserByData(email, 'email');
-        if (user !== undefined && user !== null) {
-            if (user.customer_id && user.customer_id !== customerId) {
-                throw new ErrorObject(
-                    ErrorCodes.CAN_NOT_REGISTER,
-                    ErrorMessages.CUSTOMER_ALREADY_REGISTERED_WITH_OTHER_ID,
-                    {
-                        user,
-                        customer
-                    }
-                );
-            }
-            const updatedUser = await this.updateCustomerId(user, customer);
-
-            const outlet = await this.outletService.createOrUpdate(user.id, {
-                name: customer.custname,
-                type: 'EXISTING_CUSTOMER',
-                telephone: customer.no_hp,
-                mobile_phone: customer.no_hp,
-                user_id: user.id
-            });
-
-            const outletAddress = await this.outletAddressService.createOutletAddress({
-                label: 'Outlet',
-                receiver_name: user.name,
-                mobile_phone: customer.no_hp || '-',
-                province: mapJabodetabekToProvince(customer),
-                city: customer.city,
-                full_address: customer.alamat,
-                district: '',
-                subdistrict: '',
-                user_id: user.id,
-                status: EAddressStatus.ACTIVE,
-                is_main: true
-            });
-
-            // delete updatedUser.verification_token;
-
-            return updatedUser;
-        }
-    }
-
     async verifiedEmailToken(email: string, token: string) {
         const user = await this.userRepo.findUserByData(email, 'email');
 
@@ -798,26 +760,6 @@ export class UserService implements IUserService {
     public async countAll(query?: IQueryUsers, payload?: any) {
         const total = await this.userRepo.countAll(query);
         return total;
-    }
-
-    public async registerSap(user: IPayloadAuthData) {
-        const userData = await this.userRepo.findUserByData(user.email, 'email');
-        const addresses = userData.outlet_addresses as any;
-        const mainAddress = addresses.find((address) => address.is_main) || addresses[0];
-
-        const userSap: ISapCustomer = {
-            alamat: `${mainAddress.full_address} ${mainAddress.city} ${mainAddress.province}`,
-            email: user.email,
-            jenis_outlet: userData.outlets.type,
-            nama_outlet: userData.outlets.name,
-            npwp: userData.outlets.npwp,
-            telp: userData.phone_number,
-            noref_dplus: userData.noref_dplus
-        };
-
-        const result = await this.dnrClient.registerCustomer(userSap);
-
-        return result;
     }
 
     async sendChat(id: string, text: string) {

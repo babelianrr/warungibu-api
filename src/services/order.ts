@@ -17,7 +17,6 @@ import path from 'path';
 
 import { ErrorCodes } from 'src/libs/errors';
 import { ErrorObject } from 'src/libs/error-object';
-import { DNR } from 'src/clients/dnr/dnr';
 import { Xendit } from 'src/clients/xendit/xendit';
 import { EChannel, ICardPaymentChargeOption, IPaymentCallback } from 'src/clients/xendit/xendit.interfaces';
 import {
@@ -51,7 +50,7 @@ import { IProductRepo } from 'src/services/product';
 import { XenditCard } from 'src/clients/xendit/xenditCard';
 import { Promotions } from 'src/models/promotion';
 import { IQueryPromotionCode } from 'src/libs/database/repository/promotion';
-import { EProductTypes, ProductStatuses } from 'src/models/products';
+import { ProductStatuses } from 'src/models/products';
 import { ERoleStatus } from 'src/models/Users';
 import { Branches } from 'src/models/branches';
 import { BranchRepository } from 'src/libs/database/repository/branch';
@@ -162,8 +161,6 @@ export class OrderService implements IOrderService {
 
     private promotionRepository: IPromotionRepo;
 
-    private dnrClient: DNR;
-
     private xenditClient: Xendit;
 
     private xenditCardClient: XenditCard;
@@ -190,7 +187,6 @@ export class OrderService implements IOrderService {
         this.cartRepository = cr;
         this.productRepository = productRepository;
         this.promotionRepository = promotionRepository;
-        this.dnrClient = new DNR();
         this.xenditClient = new Xendit(EChannel.VIRTUAL_ACCOUNT);
         this.xenditCardClient = new XenditCard(EChannel.CARD_PAYMENT);
         this.branchRepository = branchRepository;
