@@ -1,3 +1,5 @@
+import { NODE_ENV } from 'src/config';
+
 /* eslint-disable consistent-return */
 export const generateTransactionNumber = (count: number): string => {
     const alphabet = [
@@ -29,7 +31,8 @@ export const generateTransactionNumber = (count: number): string => {
         'Z'
     ];
 
-    const no = Math.floor(count / 1000);
+    const no =
+        NODE_ENV === 'local' || NODE_ENV === 'development' ? Math.floor(count / 1000) : Math.floor(count / 10000);
 
     const setAlphabetRow = (n: number) => {
         if (n < 26) {
@@ -143,5 +146,7 @@ export const generateTransactionNumber = (count: number): string => {
         return alphabet[col];
     }
 
-    return `${setAlphabetCol(no)}${setAlphabetRow(no)}${`00${count}`.slice(-3)}`;
+    return NODE_ENV === 'local' || NODE_ENV === 'development'
+        ? `${setAlphabetCol(no)}${setAlphabetRow(no)}${`0000${count}`.slice(-3)}`
+        : `${setAlphabetCol(no)}${setAlphabetRow(no)}${`0000${count}`.slice(-4)}`;
 };
