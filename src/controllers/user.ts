@@ -75,7 +75,6 @@ export class UserController {
             this.router.patch('/password/id', this.updatePassword.bind(this));
             this.router.patch('/add-pin', this.addPinForUser.bind(this));
             this.router.patch('/update-pin', this.updatePinForUser.bind(this));
-            this.router.post('/get_customer_detail', this.updateCustomerDetail.bind(this));
             this.router.post('/verified_email_token', this.verifiedEmailToken.bind(this));
             this.router.get('/verification_check', this.userVerificationCheck.bind(this));
             this.router.post('/chats', this.sendChat.bind(this));
@@ -88,7 +87,6 @@ export class UserController {
                 uploadHandler.single('file'),
                 this.updateProfilePicture.bind(this)
             );
-            this.router.post('/register_sap', this.registerSap.bind(this));
             this.router.get('/:id', this.getUserDetail.bind(this));
         }
     }
@@ -288,17 +286,6 @@ export class UserController {
         }
     }
 
-    async updateCustomerDetail(req: IRequestExtra, res: Response, next: NextFunction) {
-        try {
-            const { id, email } = req.user;
-            const result = await this.userService.updateByCustomerId(email, req.body.customer_id);
-
-            return res.status(200).json(result);
-        } catch (error) {
-            return next(error);
-        }
-    }
-
     async verifiedEmailToken(req: IRequestExtra, res: Response, next: NextFunction) {
         try {
             const { email } = req.user;
@@ -362,14 +349,6 @@ export class UserController {
         try {
             const { user, body } = req;
 
-            // console.log(
-            //     {
-            //         user,
-            //         body
-            //     },
-            //     'Read Chat By ADMIN'
-            // );
-
             await this.userService.updateReadChat(body.user_id, user.id);
 
             return res.status(200).json({ status: 'OK' });
@@ -381,13 +360,6 @@ export class UserController {
     async readChatUser(req: IRequestExtra, res: Response, next: NextFunction) {
         try {
             const { user } = req;
-
-            // console.log(
-            //     {
-            //         user
-            //     },
-            //     'Read Chat By Customer'
-            // );
 
             await this.userService.updateReadChat(user.id, user.id);
 
@@ -457,16 +429,6 @@ export class UserController {
                     new ErrorObject(ErrorCodes.EXISTING_CUSTOMER_ID, 'Customer ID sudah terdaftar pada aplikasi', null)
                 );
             }
-            return next(error);
-        }
-    }
-
-    async registerSap(req: IRequestExtra, res: Response, next: NextFunction) {
-        try {
-            const result = await this.userService.registerSap(req.user);
-
-            return res.status(200).json(result);
-        } catch (error) {
             return next(error);
         }
     }

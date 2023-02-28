@@ -22,7 +22,6 @@ interface IProductService {
     findTopProduct(userId: string, limit?: number): Promise<Products[]>;
     findByProductSku(product_sku: string): Promise<Products>;
     createOrUpdateFromSAP(input: IProductCreateRequest): Promise<Products>;
-    findProductStock(id: string): Promise<any>;
     countAll(isAdmin: boolean, query?: any | string[]): Promise<any>;
     findAllForAdmin(queryString: any): Promise<Products[]>;
     updateProduct(input: IProductUpdateRequest, role: string): Promise<Products>;
@@ -32,7 +31,6 @@ interface IProductService {
     getFavoritesForUser(userId: string, query: any): Promise<Products[]>;
     countAllFavorites(userId: string): Promise<any>;
     removeProductFavorites(productId: string, userId: string): Promise<Products>;
-    syncProduct(): Promise<any>;
     createNewProduct(input: IProductCreateRequest, role: string): Promise<Products>;
 }
 
@@ -64,7 +62,6 @@ export class ProductController {
                 this.uploadSingleImage.bind(this)
             );
             this.router.delete('/images/:image_id', this.removeImage.bind(this));
-            this.router.post('/sync-product', this.syncProduct.bind(this));
         } else {
             this.router.get('/', optionalAuthentication, this.get.bind(this));
             this.router.get('/top-product', optionalAuthentication, this.getTopProduct.bind(this));
@@ -307,18 +304,6 @@ export class ProductController {
             await this.productService.removeProductFavorites(req.params.id, req.user.id);
 
             return res.status(200).json({ status: 'OK' });
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    public async syncProduct(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
-        try {
-            const result = await this.productService.syncProduct();
-            console.log(`Admin ${req.user.email} run product sync at ${new Date().toISOString()}`);
-            return res.status(200).json({
-                message: `Berhasil memperbarui ${result.active_product} produk dan menonaktifkan ${result.inactive_product} produk.`
-            });
         } catch (err) {
             return next(err);
         }

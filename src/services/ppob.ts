@@ -113,11 +113,6 @@ export class PpobService {
                         active: ppob.buyer_product_status
                     });
                 }
-
-                if (ppob && !v) {
-                    removedData.push(ppob);
-                    await this.repository.delete(ppob.id);
-                }
             })
         );
 
