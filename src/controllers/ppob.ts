@@ -122,9 +122,9 @@ export class PpobController {
         try {
             const user = await this.userService.getUserById(req.user.id);
             const match = await this.userService.compareHasPassword(req.body.pin, user.pin);
-
+            let result: any;
             if (match) {
-                const result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
+                result = await this.ppobService.transactionByUser(req.body.customer_no, req.body.buyer_sku_code);
                 const product = await this.productService.findPpobByProductSku(req.body.buyer_sku_code);
                 const inquiry = await this.ppobService.checkoutForUser(req.body.customer_no, req.body.buyer_sku_code);
 
@@ -166,8 +166,8 @@ export class PpobController {
                     });
                     return res.status(200).json({ result, order });
                 }
-
-                return res.status(400).json({ message: 'Transaksi gagal.' });
+                console.log(result);
+                throw new ErrorObject('400', 'Transaksi gagal', req.body);
             }
 
             throw new ErrorObject('400', 'PIN tidak cocok.', { pin: req.body.pin });
