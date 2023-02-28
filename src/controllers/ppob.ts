@@ -166,8 +166,8 @@ export class PpobController {
                     });
                     return res.status(200).json({ result, order });
                 }
-                console.log(result);
-                throw new ErrorObject('400', 'Transaksi gagal', req.body);
+
+                throw new ErrorObject('400', 'Transaksi gagal', result);
             }
 
             throw new ErrorObject('400', 'PIN tidak cocok.', { pin: req.body.pin });
