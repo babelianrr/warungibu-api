@@ -266,10 +266,6 @@ export class UserService implements IUserService {
             if (user !== null) {
                 const match = await this.compareHasPassword(payload.password, user.password);
                 if (match) {
-                    if (user.role_status === ERoleStatus.UNVERIFIED_USER) {
-                        throw new ErrorObject('400', 'User not yet verified by admin');
-                    }
-
                     const token = this.generateJWTTokenUser(user);
                     delete user.password;
 
