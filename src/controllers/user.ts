@@ -144,7 +144,11 @@ export class UserController {
                 this.isAdminRequest &&
                 ![ERoleStatus.ADMIN, ERoleStatus.SUPER_ADMIN].includes(result.user.role_status)
             ) {
-                throw new ErrorObject(ErrorCodes.UNAUTHORIZED_USER, 'Please login as admin', null);
+                throw new ErrorObject(ErrorCodes.UNAUTHORIZED_USER, 'Silakan log in sebagai admin.', null);
+            }
+
+            if (result.user.role_status === ERoleStatus.UNVERIFIED_USER) {
+                throw new ErrorObject(ErrorCodes.UNAUTHORIZED_USER, 'User belum diverifikasi oleh admin', null);
             }
 
             return res.status(200).json(result);
