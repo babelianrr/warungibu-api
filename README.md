@@ -1,9 +1,4 @@
-# dnr-service
-
-## Description
-
-Backend for DNR Website
-UI Design: https://xd.adobe.com/view/0e45074d-44d1-4f3f-8424-1f8f3002a455-5b16/
+# Warung Ibu - API
 
 ## Development
 
@@ -67,7 +62,7 @@ Payment
 
 -   Pembayaran langsung
 -   Pembayaran COD
--   Pembayaran Tempo ( 30 Hari)
+-   Pembayaran Tempo (30 Hari)
 
 SAP
 
@@ -88,11 +83,4 @@ Admin:
 -   Superadmin
     -   Memberikan discount
 -   Admin
--   User ( Detail user apa aja)
-
-PR:
-
--   Kirim database prod ke dokumentasi
--   Tambahin SAP proses response ke dokumentasi
--   Tambahin role ke dokumentasi
--   Response SAP
+-   User (Detail user apa aja)
