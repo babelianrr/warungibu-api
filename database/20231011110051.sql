@@ -4,6 +4,7 @@ Database: db_bcart/public
 Backup Time: 2023-10-11 11:01:13
 */
 
+DROP TABLE IF EXISTS "public"."branches";
 DROP TABLE IF EXISTS "public"."banners";
 DROP TABLE IF EXISTS "public"."carts";
 DROP TABLE IF EXISTS "public"."categories";
@@ -24,16 +25,16 @@ DROP TABLE IF EXISTS "public"."promotions";
 DROP TABLE IF EXISTS "public"."promotions_products";
 DROP TABLE IF EXISTS "public"."shipments";
 DROP TABLE IF EXISTS "public"."users";
-DROP FUNCTION IF EXISTS "public"."uuid_generate_v1()";
-DROP FUNCTION IF EXISTS "public"."uuid_generate_v1mc()";
-DROP FUNCTION IF EXISTS "public"."uuid_generate_v3(namespace uuid, name text)";
-DROP FUNCTION IF EXISTS "public"."uuid_generate_v4()";
-DROP FUNCTION IF EXISTS "public"."uuid_generate_v5(namespace uuid, name text)";
-DROP FUNCTION IF EXISTS "public"."uuid_nil()";
-DROP FUNCTION IF EXISTS "public"."uuid_ns_dns()";
-DROP FUNCTION IF EXISTS "public"."uuid_ns_oid()";
-DROP FUNCTION IF EXISTS "public"."uuid_ns_url()";
-DROP FUNCTION IF EXISTS "public"."uuid_ns_x500()";
+CREATE TABLE "branches" (
+  "id" uuid NOT NULL,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "branch_code" varchar COLLATE "pg_catalog"."default" NOT NULL,
+  "stock" int4 NOT NULL,
+  "location" varchar COLLATE "pg_catalog"."default" NOT NULL,
+  "product_sku" varchar COLLATE "pg_catalog"."default" NOT NULL
+)
+;
 CREATE TABLE "banners" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -314,7 +315,7 @@ CREATE TABLE "users" (
   "loan_level" int4,
   "reset_password_token" varchar COLLATE "pg_catalog"."default",
   "reset_password_expired_at" timestamptz(6),
-  "customer_id" int4 NOT NULL DEFAULT nextval('users_customer_id_seq'::regclass),
+  "customer_id" SERIAL NOT NULL,
   "npwp" varchar(255) COLLATE "pg_catalog"."default",
   "client_phone" varchar(255) COLLATE "pg_catalog"."default",
   "loan_limit" int4,
