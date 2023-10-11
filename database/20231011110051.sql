@@ -35,7 +35,7 @@ DROP FUNCTION IF EXISTS "public"."uuid_ns_oid()";
 DROP FUNCTION IF EXISTS "public"."uuid_ns_url()";
 DROP FUNCTION IF EXISTS "public"."uuid_ns_x500()";
 CREATE TABLE "banners" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "image" varchar COLLATE "pg_catalog"."default" NOT NULL
@@ -43,7 +43,7 @@ CREATE TABLE "banners" (
 ;
 ALTER TABLE "banners" OWNER TO "dev";
 CREATE TABLE "carts" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "quantity" int4 NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE "carts" (
 ;
 ALTER TABLE "carts" OWNER TO "dev";
 CREATE TABLE "categories" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "name" varchar(40) COLLATE "pg_catalog"."default" NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE "categories" (
 ;
 ALTER TABLE "categories" OWNER TO "dev";
 CREATE TABLE "flash_sales" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "notes" varchar COLLATE "pg_catalog"."default",
@@ -80,7 +80,7 @@ CREATE TABLE "flash_sales" (
 ;
 ALTER TABLE "flash_sales" OWNER TO "dev";
 CREATE TABLE "news" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "user_id" uuid NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE "news" (
 ;
 ALTER TABLE "news" OWNER TO "dev";
 CREATE TABLE "notifications" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "user_id" uuid NOT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE "notifications" (
 ;
 ALTER TABLE "notifications" OWNER TO "dev";
 CREATE TABLE "orders" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "status" varchar COLLATE "pg_catalog"."default",
@@ -118,7 +118,7 @@ CREATE TABLE "orders" (
 ;
 ALTER TABLE "orders" OWNER TO "dev";
 CREATE TABLE "outlet_types" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "name" varchar COLLATE "pg_catalog"."default",
@@ -131,7 +131,7 @@ CREATE TABLE "outlet_types" (
 ;
 ALTER TABLE "outlet_types" OWNER TO "dev";
 CREATE TABLE "payments" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "method" varchar COLLATE "pg_catalog"."default",
   "channel" varchar COLLATE "pg_catalog"."default",
   "product_price" int4 NOT NULL,
@@ -162,7 +162,7 @@ CREATE TABLE "payments" (
 ;
 ALTER TABLE "payments" OWNER TO "dev";
 CREATE TABLE "ppob" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "product_name" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "category" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "brand" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
@@ -198,7 +198,7 @@ CREATE TABLE "product_flash_sales" (
 ;
 ALTER TABLE "product_flash_sales" OWNER TO "dev";
 CREATE TABLE "product_images" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "url" varchar(200) COLLATE "pg_catalog"."default" NOT NULL,
@@ -207,7 +207,7 @@ CREATE TABLE "product_images" (
 ;
 ALTER TABLE "product_images" OWNER TO "dev";
 CREATE TABLE "product_reviews" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "rating" int4 NOT NULL,
   "notes" varchar COLLATE "pg_catalog"."default",
   "product_id" uuid,
@@ -219,7 +219,7 @@ CREATE TABLE "product_reviews" (
 ;
 ALTER TABLE "product_reviews" OWNER TO "dev";
 CREATE TABLE "products" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "name" varchar(80) COLLATE "pg_catalog"."default" NOT NULL,
@@ -249,7 +249,7 @@ CREATE TABLE "products_categories" (
 ;
 ALTER TABLE "products_categories" OWNER TO "dev";
 CREATE TABLE "promotions" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "code" varchar COLLATE "pg_catalog"."default",
   "name" varchar COLLATE "pg_catalog"."default" NOT NULL,
   "start_date" date,
@@ -267,7 +267,7 @@ CREATE TABLE "promotions" (
 ;
 ALTER TABLE "promotions" OWNER TO "dev";
 CREATE TABLE "promotions_products" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "promotion_id" uuid NOT NULL,
   "product_id" uuid NOT NULL,
   "percentage" numeric DEFAULT 0.00,
@@ -280,7 +280,7 @@ CREATE TABLE "promotions_products" (
 ;
 ALTER TABLE "promotions_products" OWNER TO "dev";
 CREATE TABLE "shipments" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "courier" varchar COLLATE "pg_catalog"."default" NOT NULL,
@@ -296,7 +296,7 @@ CREATE TABLE "shipments" (
 ;
 ALTER TABLE "shipments" OWNER TO "dev";
 CREATE TABLE "users" (
-  "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+  "id" uuid NOT NULL,
   "name" varchar COLLATE "pg_catalog"."default" NOT NULL,
   "email" varchar COLLATE "pg_catalog"."default" NOT NULL,
   "password" varchar COLLATE "pg_catalog"."default",
@@ -325,56 +325,6 @@ CREATE TABLE "users" (
 )
 ;
 ALTER TABLE "users" OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_generate_v1"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_generate_v1'
-  LANGUAGE c VOLATILE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_generate_v1"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_generate_v1mc"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_generate_v1mc'
-  LANGUAGE c VOLATILE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_generate_v1mc"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_generate_v3"("namespace" uuid, "name" text)
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_generate_v3'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_generate_v3"("namespace" uuid, "name" text) OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_generate_v4"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_generate_v4'
-  LANGUAGE c VOLATILE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_generate_v4"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_generate_v5"("namespace" uuid, "name" text)
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_generate_v5'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_generate_v5"("namespace" uuid, "name" text) OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_nil"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_nil'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_nil"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_ns_dns"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_ns_dns'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_ns_dns"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_ns_oid"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_ns_oid'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_ns_oid"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_ns_url"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_ns_url'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_ns_url"() OWNER TO "dev";
-CREATE OR REPLACE FUNCTION "uuid_ns_x500"()
-  RETURNS "pg_catalog"."uuid" AS '$libdir/uuid-ossp', 'uuid_ns_x500'
-  LANGUAGE c IMMUTABLE STRICT
-  COST 1;
-ALTER FUNCTION "uuid_ns_x500"() OWNER TO "dev";
 BEGIN;
 LOCK TABLE "public"."banners" IN SHARE MODE;
 DELETE FROM "public"."banners";
@@ -454,7 +404,7 @@ COMMIT;
 BEGIN;
 LOCK TABLE "public"."users" IN SHARE MODE;
 DELETE FROM "public"."users";
-INSERT INTO "public"."users" ("id","name","email","password","ktp","user_address","gender","phone_number","role_status","login_provider","photo_url","created","updated","verification_token","noref_dplus","loan_level","reset_password_token","reset_password_expired_at","customer_id","npwp","client_phone","loan_limit","outlet_types_id","pin","reset_pin_token","reset_pin_expired_at") VALUES ('b9f46334-e02d-4437-8419-5ae9e5245337', 'Super Admin', 'admin@warungibu.dev', '$2b$10$oktiuCET56CUEn9adjpjAe2cHMDMb.WDN0YCLULp3qyuhVWj.PjvC', NULL, NULL, NULL, NULL, 'SUPER_ADMIN', NULL, NULL, '2023-01-30 14:47:38+07', '2023-01-30 13:36:39+07', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+INSERT INTO "public"."users" ("id","name","email","password","ktp","user_address","gender","phone_number","role_status","login_provider","photo_url","created","updated","verification_token","noref_dplus","loan_level","reset_password_token","reset_password_expired_at","customer_id","npwp","client_phone","loan_limit","outlet_types_id","pin","reset_pin_token","reset_pin_expired_at") VALUES ('b9f46334-e02d-4437-8419-5ae9e5245337', 'Super Admin', 'admin@warungibu.dev', '$2b$10$oktiuCET56CUEn9adjpjAe2cHMDMb.WDN0YCLULp3qyuhVWj.PjvC', NULL, NULL, NULL, NULL, 'SUPER_ADMIN', NULL, NULL, '2023-01-30 14:47:38+07', '2023-01-30 13:36:39+07', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 COMMIT;
 ALTER TABLE "ppob" ADD CONSTRAINT "ppob_pkey" PRIMARY KEY ("id");
 ALTER TABLE "ppob" ADD CONSTRAINT "ppob_buyer_sku_code_key" UNIQUE ("buyer_sku_code");
