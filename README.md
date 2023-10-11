@@ -22,3 +22,7 @@ Prerequisite
 ```
 npm run start:dev
 ```
+
+**Issues**
+
+-   This app requires firebase secret key to run properly, please use your own firebase secret key and modify `firebase-admin-secret.json` file.
