@@ -1,6 +1,6 @@
 import { ConnectionOptions } from 'typeorm';
 import { entities } from 'src/libs/database/entities';
-import { migrations } from 'src/libs/database/migrations';
+// import { migrations } from 'src/libs/database/migrations';
 
 import {
     // Envvars for default database connection
@@ -15,7 +15,7 @@ export const OrmConfig = {
     synchronize: false,
     logging: false, // loging sql queries
     entities,
-    migrations, // put file if any migrations
+    // migrations, // put file if any migrations
     cli: {
         entitiesDir: 'src/libs/database/entities',
         migratiosDir: 'src/libs/database/migrations'
