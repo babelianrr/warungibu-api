@@ -77,7 +77,7 @@ import { SendGrid } from './clients/sendgrid/sendgrid';
 import { ReportService } from './services/report';
 import { ReportController } from './controllers/report';
 import { FirebaseAdmin } from './clients/firebase';
-import CERT_FILE from '../dnr-plus-firebase-admin-secret.json';
+import CERT_FILE from '../firebase-admin-secret.json';
 import { PpobRepository } from './libs/database/repository/ppob';
 import { PpobService } from './services/ppob';
 import { PpobController } from './controllers/ppob';
