@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-param-reassign */
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ErrorObject } from 'src/libs/error-object';
 import { ErrorCodes } from 'src/libs/errors';
-import { DNR_APIKEY, JWT_SECRET } from 'src/config';
+import { /* DNR_APIKEY, */ JWT_SECRET } from 'src/config';
 import { ERoleStatus } from 'src/models/Users';
 
 export interface IRequestExtra extends Request {
@@ -15,10 +17,10 @@ export interface IRequestExtra extends Request {
 }
 
 function checkAPIKeyForSAP(apiKey: string) {
-    return apiKey === DNR_APIKEY;
+    return apiKey === '';
 }
 
-export async function authentication(_: any, res: Response, next: NextFunction) {
+export async function authentication(_: any, res: Response, next: NextFunction): Promise<void> {
     const apiKey = _.get('x-auth-token');
     try {
         /**

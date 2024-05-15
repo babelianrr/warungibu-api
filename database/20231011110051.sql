@@ -42,7 +42,7 @@ CREATE TABLE "banners" (
   "image" varchar COLLATE "pg_catalog"."default" NOT NULL
 )
 ;
-ALTER TABLE "banners" OWNER TO "dev";
+ALTER TABLE "banners" OWNER TO "postgres";
 CREATE TABLE "carts" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -59,7 +59,7 @@ CREATE TABLE "carts" (
   "ppob_id" uuid
 )
 ;
-ALTER TABLE "carts" OWNER TO "dev";
+ALTER TABLE "carts" OWNER TO "postgres";
 CREATE TABLE "categories" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -68,7 +68,7 @@ CREATE TABLE "categories" (
   "icon_url" varchar COLLATE "pg_catalog"."default"
 )
 ;
-ALTER TABLE "categories" OWNER TO "dev";
+ALTER TABLE "categories" OWNER TO "postgres";
 CREATE TABLE "flash_sales" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -79,7 +79,7 @@ CREATE TABLE "flash_sales" (
   "end_date" timestamptz(6) NOT NULL
 )
 ;
-ALTER TABLE "flash_sales" OWNER TO "dev";
+ALTER TABLE "flash_sales" OWNER TO "postgres";
 CREATE TABLE "news" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -91,7 +91,7 @@ CREATE TABLE "news" (
   "slug" varchar(100) COLLATE "pg_catalog"."default"
 )
 ;
-ALTER TABLE "news" OWNER TO "dev";
+ALTER TABLE "news" OWNER TO "postgres";
 CREATE TABLE "notifications" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -102,7 +102,7 @@ CREATE TABLE "notifications" (
   "seen" bool NOT NULL DEFAULT false
 )
 ;
-ALTER TABLE "notifications" OWNER TO "dev";
+ALTER TABLE "notifications" OWNER TO "postgres";
 CREATE TABLE "orders" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -117,7 +117,7 @@ CREATE TABLE "orders" (
   "completion_deadline" timestamptz(6)
 )
 ;
-ALTER TABLE "orders" OWNER TO "dev";
+ALTER TABLE "orders" OWNER TO "postgres";
 CREATE TABLE "outlet_types" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -130,7 +130,7 @@ CREATE TABLE "outlet_types" (
   "active" bool DEFAULT true
 )
 ;
-ALTER TABLE "outlet_types" OWNER TO "dev";
+ALTER TABLE "outlet_types" OWNER TO "postgres";
 CREATE TABLE "payments" (
   "id" uuid NOT NULL,
   "method" varchar COLLATE "pg_catalog"."default",
@@ -161,7 +161,7 @@ CREATE TABLE "payments" (
   "days_due" int4
 )
 ;
-ALTER TABLE "payments" OWNER TO "dev";
+ALTER TABLE "payments" OWNER TO "postgres";
 CREATE TABLE "ppob" (
   "id" uuid NOT NULL,
   "product_name" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
@@ -185,19 +185,19 @@ CREATE TABLE "ppob" (
   "updated_at" timestamptz(6) NOT NULL DEFAULT now()
 )
 ;
-ALTER TABLE "ppob" OWNER TO "dev";
+ALTER TABLE "ppob" OWNER TO "postgres";
 CREATE TABLE "product_favorites" (
   "product_id" uuid NOT NULL,
   "user_id" uuid NOT NULL
 )
 ;
-ALTER TABLE "product_favorites" OWNER TO "dev";
+ALTER TABLE "product_favorites" OWNER TO "postgres";
 CREATE TABLE "product_flash_sales" (
   "product_id" uuid NOT NULL,
   "flash_sale_id" uuid NOT NULL
 )
 ;
-ALTER TABLE "product_flash_sales" OWNER TO "dev";
+ALTER TABLE "product_flash_sales" OWNER TO "postgres";
 CREATE TABLE "product_images" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -206,7 +206,7 @@ CREATE TABLE "product_images" (
   "product_id" uuid
 )
 ;
-ALTER TABLE "product_images" OWNER TO "dev";
+ALTER TABLE "product_images" OWNER TO "postgres";
 CREATE TABLE "product_reviews" (
   "id" uuid NOT NULL,
   "rating" int4 NOT NULL,
@@ -218,7 +218,7 @@ CREATE TABLE "product_reviews" (
   "updated_at" timestamptz(6) NOT NULL DEFAULT now()
 )
 ;
-ALTER TABLE "product_reviews" OWNER TO "dev";
+ALTER TABLE "product_reviews" OWNER TO "postgres";
 CREATE TABLE "products" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -242,13 +242,13 @@ CREATE TABLE "products" (
   "sap_price" int4
 )
 ;
-ALTER TABLE "products" OWNER TO "dev";
+ALTER TABLE "products" OWNER TO "postgres";
 CREATE TABLE "products_categories" (
   "product_id" uuid NOT NULL,
   "category_id" uuid NOT NULL
 )
 ;
-ALTER TABLE "products_categories" OWNER TO "dev";
+ALTER TABLE "products_categories" OWNER TO "postgres";
 CREATE TABLE "promotions" (
   "id" uuid NOT NULL,
   "code" varchar COLLATE "pg_catalog"."default",
@@ -266,7 +266,7 @@ CREATE TABLE "promotions" (
   "max_discount_amount" int4
 )
 ;
-ALTER TABLE "promotions" OWNER TO "dev";
+ALTER TABLE "promotions" OWNER TO "postgres";
 CREATE TABLE "promotions_products" (
   "id" uuid NOT NULL,
   "promotion_id" uuid NOT NULL,
@@ -279,7 +279,7 @@ CREATE TABLE "promotions_products" (
   "updated_at" timestamptz(6) NOT NULL DEFAULT now()
 )
 ;
-ALTER TABLE "promotions_products" OWNER TO "dev";
+ALTER TABLE "promotions_products" OWNER TO "postgres";
 CREATE TABLE "shipments" (
   "id" uuid NOT NULL,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
@@ -295,7 +295,7 @@ CREATE TABLE "shipments" (
   "outlet_types_id" uuid
 )
 ;
-ALTER TABLE "shipments" OWNER TO "dev";
+ALTER TABLE "shipments" OWNER TO "postgres";
 CREATE TABLE "users" (
   "id" uuid NOT NULL,
   "name" varchar COLLATE "pg_catalog"."default" NOT NULL,
@@ -325,7 +325,7 @@ CREATE TABLE "users" (
   "reset_pin_expired_at" timestamptz(6)
 )
 ;
-ALTER TABLE "users" OWNER TO "dev";
+ALTER TABLE "users" OWNER TO "postgres";
 BEGIN;
 LOCK TABLE "public"."banners" IN SHARE MODE;
 DELETE FROM "public"."banners";
@@ -405,7 +405,7 @@ COMMIT;
 BEGIN;
 LOCK TABLE "public"."users" IN SHARE MODE;
 DELETE FROM "public"."users";
-INSERT INTO "public"."users" ("id","name","email","password","ktp","user_address","gender","phone_number","role_status","login_provider","photo_url","created","updated","verification_token","noref_dplus","loan_level","reset_password_token","reset_password_expired_at","customer_id","npwp","client_phone","loan_limit","outlet_types_id","pin","reset_pin_token","reset_pin_expired_at") VALUES ('b9f46334-e02d-4437-8419-5ae9e5245337', 'Super Admin', 'admin@warungibu.dev', '$2b$10$oktiuCET56CUEn9adjpjAe2cHMDMb.WDN0YCLULp3qyuhVWj.PjvC', NULL, NULL, NULL, NULL, 'SUPER_ADMIN', NULL, NULL, '2023-01-30 14:47:38+07', '2023-01-30 13:36:39+07', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO "public"."users" ("id","name","email","password","ktp","user_address","gender","phone_number","role_status","login_provider","photo_url","created","updated","verification_token","noref_dplus","loan_level","reset_password_token","reset_password_expired_at","customer_id","npwp","client_phone","loan_limit","outlet_types_id","pin","reset_pin_token","reset_pin_expired_at") VALUES ('b9f46334-e02d-4437-8419-5ae9e5245337', 'Super Admin', 'admin@warungibu.postgres', '$2b$10$oktiuCET56CUEn9adjpjAe2cHMDMb.WDN0YCLULp3qyuhVWj.PjvC', NULL, NULL, NULL, NULL, 'SUPER_ADMIN', NULL, NULL, '2023-01-30 14:47:38+07', '2023-01-30 13:36:39+07', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 COMMIT;
 ALTER TABLE "ppob" ADD CONSTRAINT "ppob_pkey" PRIMARY KEY ("id");
 ALTER TABLE "ppob" ADD CONSTRAINT "ppob_buyer_sku_code_key" UNIQUE ("buyer_sku_code");

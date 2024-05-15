@@ -16,7 +16,7 @@ import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { FirebaseAdmin } from 'src/clients/firebase';
 import { SendGrid } from 'src/clients/sendgrid/sendgrid';
-import { GOOGLE_CLIENT_ID, JWT_SECRET } from 'src/config';
+import { /* GOOGLE_CLIENT_ID, */ JWT_SECRET } from 'src/config';
 import xlsx from 'xlsx';
 import { IQueryUsers, IRegisterUser, UserRepository } from 'src/libs/database/repository/user';
 import { ErrorObject } from 'src/libs/error-object';
@@ -131,7 +131,7 @@ export class UserService implements IUserService {
 
     jwtSecret: string;
 
-    googleClient: OAuth2Client;
+    // googleClient: OAuth2Client;
 
     sendGrid: SendGrid;
 
@@ -158,7 +158,7 @@ export class UserService implements IUserService {
         this.outletService = outletService;
         this.hashSalt = 10;
         this.jwtSecret = JWT_SECRET;
-        this.googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+        // this.googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
         this.outletAddressService = outletAddressService;
         this.sendGrid = sendGrid;
         this.fireBase = fireBase;

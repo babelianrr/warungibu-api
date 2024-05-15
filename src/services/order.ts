@@ -17,8 +17,6 @@ import path from 'path';
 
 import { ErrorCodes } from 'src/libs/errors';
 import { ErrorObject } from 'src/libs/error-object';
-import { Xendit } from 'src/clients/xendit/xendit';
-import { EChannel, ICardPaymentChargeOption, IPaymentCallback } from 'src/clients/xendit/xendit.interfaces';
 import {
     IOrderCreateRequest,
     IOrderEvents,
@@ -47,7 +45,6 @@ import { ICartRepo } from 'src/services/cart';
 import { IOutletAddressRepo } from 'src/libs/database/repository/outlet_address';
 import { MAX_CART_QUANTITY } from 'src/config';
 import { IProductRepo } from 'src/services/product';
-import { XenditCard } from 'src/clients/xendit/xenditCard';
 import { Promotions } from 'src/models/promotion';
 import { IQueryPromotionCode } from 'src/libs/database/repository/promotion';
 import { ProductStatuses } from 'src/models/products';
@@ -64,7 +61,6 @@ export interface IOrderService {
     createPpobOrder(orderData: IPpobCreateRequest): Promise<Orders>;
     updatePayment(order: IOrderUpdateRequest): Promise<Orders>;
     completePaymentByAdmin(orderId: string): Promise<Orders>;
-    completePaymentWithVA(callbackData: IPaymentCallback): Promise<Orders>;
     cancelOrderAdmin(transaction_number: string): Promise<Orders>;
     cancelOrderUser(orderId: string, userId: string, email: string): Promise<Orders>;
     deliveredOrderByAdmin(orderId: string, paid?: string, receiverName?: string): Promise<Orders>;
@@ -80,20 +76,20 @@ export interface IOrderService {
     countFiltered(query: any): Promise<any>;
     generateInvoice(transaction_number: string, invoice_type: string): any;
     generateFaktur(transaction_number: string, fakturType: string): any;
-    chargeCardPayment(
-        userId: string,
-        id: string,
-        chargeData: {
-            externalID: any;
-            tokenID: any;
-            authID: any;
-            amount: any;
-            cardCVN: any;
-            currency: string;
-            midLabel: string;
-            promoCode: any;
-        }
-    ): Promise<any>;
+    // chargeCardPayment(
+    //     userId: string,
+    //     id: string,
+    //     chargeData: {
+    //         externalID: any;
+    //         tokenID: any;
+    //         authID: any;
+    //         amount: any;
+    //         cardCVN: any;
+    //         currency: string;
+    //         midLabel: string;
+    //         promoCode: any;
+    //     }
+    // ): Promise<any>;
     addToCartInvoice(cartData: IInvocieCartCreateRequest): Promise<Carts>;
     updateInvoiceCart(cartData: IInvoiceCartUpdateRequest): Promise<Carts>;
     softDeleteInvoice(tansactionId: string, id: string): Promise<Carts>;
@@ -161,10 +157,6 @@ export class OrderService implements IOrderService {
 
     private promotionRepository: IPromotionRepo;
 
-    private xenditClient: Xendit;
-
-    private xenditCardClient: XenditCard;
-
     private branchRepository: BranchRepository;
 
     constructor(
@@ -187,8 +179,6 @@ export class OrderService implements IOrderService {
         this.cartRepository = cr;
         this.productRepository = productRepository;
         this.promotionRepository = promotionRepository;
-        this.xenditClient = new Xendit(EChannel.VIRTUAL_ACCOUNT);
-        this.xenditCardClient = new XenditCard(EChannel.CARD_PAYMENT);
         this.branchRepository = branchRepository;
         this.paymentTermsRepo = paymentTermsRepository;
     }
@@ -535,121 +525,7 @@ export class OrderService implements IOrderService {
         return this.completePayment(order);
     }
 
-    public async completePaymentWithVA(callbackData: IPaymentCallback): Promise<Orders> {
-        const order = await this.repository.findOrderByTransactionNumber(callbackData.external_id);
-
-        if (!order) {
-            throw new ErrorObject(ErrorCodes.ORDER_NOT_FOUND_ERROR, 'Transaksi tidak ditemukan');
-        }
-
-        if (order.status !== OrderStatuses.ORDERED) {
-            // mostly for loans. user paid after order being proccess.
-            if (order.payment.type === EPaymentType.LOAN && order.payment.status === EPaymentStatus.PENDING) {
-                return this.completePaymentAfterCompleteOrder(order);
-            }
-
-            throw new ErrorObject(
-                ErrorCodes.COMPLETE_PAYMENT_ORDER_ERROR,
-                'Status transaksi tidak sedang menunggu pembayaran'
-            );
-        }
-
-        if (order.payment.method !== EPaymentMethod.XENDIT_VA) {
-            throw new ErrorObject(
-                ErrorCodes.COMPLETE_PAYMENT_ORDER_ERROR,
-                'Aksi hanya berlaku untuk order dengan virtual account'
-            );
-        }
-
-        if (order.payment.reference_number !== callbackData.callback_virtual_account_id) {
-            throw new ErrorObject(ErrorCodes.COMPLETE_PAYMENT_ORDER_ERROR, 'Pembayaran virtual account tidak sesuai');
-        }
-
-        return this.completePayment(order, callbackData.id);
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    public async chargeCardPayment(userId: string, id: string, chargeData: ICardPaymentChargeOption): Promise<any> {
-        const order = await this.repository.findByIdForUser(userId, id);
-        const address = await this.addressRepository.findOutletAddressByUserId(userId);
-
-        if (!order) {
-            throw new ErrorObject(ErrorCodes.ORDER_NOT_FOUND_ERROR, 'Transaksi tidak ditemukan');
-        }
-
-        if (order.status !== OrderStatuses.COMPLETED) {
-            throw new ErrorObject(
-                ErrorCodes.COMPLETE_PAYMENT_ORDER_ERROR,
-                'Status transaksi tidak sedang menunggu pembayaran'
-            );
-        }
-        let discountAmount = 0;
-        let promotionCode = '';
-
-        if (chargeData.promoCode) {
-            const promotions = await this.promotionRepository.findPromotionCode(
-                {
-                    code: chargeData.promoCode,
-                    bank_code: chargeData.bankCode,
-                    total_amount: order.payment.total_amount
-                },
-                userId
-            );
-
-            if (promotions.length > 0) {
-                const promotion = promotions[0];
-                promotionCode = promotion.code;
-                discountAmount = Math.ceil((Number(promotion.discount_percentage) / 100) * order.payment.total_amount);
-
-                if (discountAmount >= promotion.max_discount_amount) {
-                    discountAmount = promotion.max_discount_amount;
-                }
-            }
-        }
-
-        const paymentAmount = order.payment.total_amount - discountAmount;
-
-        const requestCharge = {
-            amount: paymentAmount,
-            externalID: order.transaction_number,
-            tokenID: chargeData.tokenID,
-            authID: chargeData.authID,
-            cardCVN: chargeData.cardCVN,
-            descriptor: chargeData.descriptor,
-            // currency: chargeData.currency,
-            // midLabel: chargeData.midLabel,
-            billingDetails: chargeData.billingDetails
-        };
-
-        console.log(requestCharge);
-
-        // Xendit Charge Card Payment
-        const charge = await this.xenditCardClient.create(requestCharge);
-
-        if (charge) {
-            if (charge.status === 'CAPTURED' || charge.status === 'AUTHORIZED') {
-                if (order.payment.type === EPaymentType.LOAN && order.payment.status === EPaymentStatus.PENDING) {
-                    if (charge.card_type === 'CREDIT') {
-                        order.payment.method = EPaymentMethod.XENDIT_CC;
-                    }
-                    if (charge.card_type === 'DEBIT') {
-                        order.payment.method = EPaymentMethod.XENDIT_DC;
-                    }
-                    order.payment.account_name = charge.masked_card_number;
-                    order.payment.promotion_discount = discountAmount;
-                    order.payment.promotion_code = promotionCode;
-                    order.payment.reference_number = charge.merchant_reference_code;
-                    order.payment.payment_date = charge.created;
-
-                    await this.completeCardPayment(order);
-                }
-                return { message: 'success', orderId: order.id };
-            }
-        }
-
-        throw new ErrorObject(ErrorCodes.COMPLETE_PAYMENT_ORDER_ERROR, 'Pembayaran Kartu Belum berhasil');
-    }
-
     public async cancelOrderAdmin(transactionNumber: string): Promise<Orders> {
         const order = await this.repository.findOrderByTransactionNumber(transactionNumber);
         if (!order) {
@@ -690,7 +566,6 @@ export class OrderService implements IOrderService {
                 total_amount: order.payment.total_amount,
                 status: EPaymentStatus.REFUNDED,
                 method: order.payment.method,
-                channel: order.payment.channel,
                 account_number: order.payment.account_number,
                 event_type: EPaymentEventType.REFUNDED,
                 timestamp: new Date().toISOString()
@@ -741,7 +616,6 @@ export class OrderService implements IOrderService {
                 total_amount: order.payment.total_amount,
                 status: EPaymentStatus.REFUNDED,
                 method: order.payment.method,
-                channel: order.payment.channel,
                 account_number: order.payment.account_number,
                 event_type: EPaymentEventType.REFUNDED,
                 timestamp: new Date().toISOString()
@@ -897,7 +771,6 @@ export class OrderService implements IOrderService {
             // }
             case EPaymentType.LOAN: {
                 payment.method = null;
-                payment.channel = null;
                 payment.account_number = null;
                 payment.reference_number = null;
 
@@ -913,7 +786,6 @@ export class OrderService implements IOrderService {
                     total_amount: payment.total_amount,
                     status: payment.status,
                     method: payment.method,
-                    channel: payment.channel,
                     account_number: payment.account_number,
                     event_type: EPaymentEventType.EXPIRED,
                     timestamp: new Date().toISOString()
@@ -946,7 +818,6 @@ export class OrderService implements IOrderService {
             total_amount: order.payment.total_amount,
             status: order.payment.status,
             method: order.payment.method,
-            channel: order.payment.channel,
             account_number: order.payment.account_number,
             event_type: EPaymentEventType.REFUNDED,
             timestamp: new Date().toISOString()
@@ -1048,7 +919,6 @@ export class OrderService implements IOrderService {
                 total_amount: paymentData.total_amount as number,
                 status: paymentData.status,
                 method: paymentData.method,
-                channel: paymentData.channel,
                 account_number: paymentData.account_number,
                 event_type: event,
                 timestamp: new Date().toISOString()
@@ -1056,45 +926,6 @@ export class OrderService implements IOrderService {
         ];
 
         return paymentData;
-    }
-
-    async createVa(
-        payment: Payments,
-        transaction_number: string,
-        name: string,
-        expirationDate: string
-    ): Promise<Payments> {
-        const newPayment = payment;
-
-        const vaResponse = await this.xenditClient.create({
-            externalID: transaction_number,
-            amount: payment.total_amount,
-            billTo: name,
-            bank: payment.channel,
-            expirationDate
-        });
-
-        newPayment.account_number = vaResponse.account_number;
-        newPayment.account_name = vaResponse.name;
-        newPayment.reference_number = vaResponse.id;
-        newPayment.events.push({
-            type: 'PAYMENT',
-            total_amount: payment.total_amount,
-            status: payment.status,
-            method: payment.method,
-            channel: payment.channel,
-            account_number: vaResponse.account_number,
-            reference_number: vaResponse.id,
-            event_type: EPaymentEventType.CREATE_VA,
-            timestamp: new Date().toISOString()
-        });
-
-        return this.paymentRepository.save(newPayment);
-    }
-
-    async expireVA(referenceNumber: string): Promise<void> {
-        const expirationDate = subDays(new Date(), 1);
-        await this.xenditClient.update(referenceNumber, null, expirationDate);
     }
 
     async completeCardPayment(order: Orders): Promise<Orders> {
@@ -1105,7 +936,6 @@ export class OrderService implements IOrderService {
             total_amount: payment.total_amount,
             status: EPaymentStatus.SUCCESS,
             method: payment.method,
-            channel: payment.channel,
             account_number: payment.account_number,
             event_type: EPaymentEventType.PAID,
             timestamp: new Date().toISOString()
@@ -1123,7 +953,6 @@ export class OrderService implements IOrderService {
             total_amount: payment.total_amount,
             status: EPaymentStatus.SUCCESS,
             method: EPaymentMethod.LOAN,
-            channel: payment.channel,
             account_number: payment.account_number,
             event_type: EPaymentEventType.PAID,
             timestamp: new Date().toISOString()
@@ -1164,7 +993,6 @@ export class OrderService implements IOrderService {
             total_amount: payment.total_amount,
             status: EPaymentStatus.SUCCESS,
             method: EPaymentMethod.LOAN,
-            channel: payment.channel,
             account_number: payment.account_number,
             event_type: EPaymentEventType.PAID,
             timestamp: new Date().toISOString()
@@ -1199,11 +1027,6 @@ export class OrderService implements IOrderService {
         for (let i = 0; i < carts.length; i += 1) {
             carts[i].status = CartStatuses.FAILED;
             await this.cartRepository.save(carts[i]);
-        }
-
-        // expire VA if exists
-        if (payment.method === EPaymentMethod.XENDIT_VA) {
-            await this.expireVA(payment.reference_number);
         }
 
         order.status = OrderStatuses.CANCELED;

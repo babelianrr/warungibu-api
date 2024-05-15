@@ -86,7 +86,6 @@ export class OrderController {
             this.router.patch('/:id', this.update.bind(this));
             this.router.post('/:id/cancel', this.cancelOrderUser.bind(this));
             this.router.post('/:id/complete', this.completeOrder.bind(this));
-            this.router.post('/:id/charge', this.chargeCardPayment.bind(this));
         }
     }
 
@@ -289,44 +288,6 @@ export class OrderController {
 
             // console.log(`Admin with email: ${req.user.email} complete the order ${order.transaction_number}`);
             return res.status(200).json(order);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    public async chargeCardPayment(req: IRequestExtra, res: Response, next: NextFunction): Promise<Response | void> {
-        try {
-            const userId = req.user.id;
-            const { body, params } = req;
-            const chargeData = {
-                externalID: body.externalID,
-                tokenID: body.tokenID,
-                authID: body.authID,
-                amount: body.amount,
-                cardCVN: body.cardCvn,
-                currency: 'IDR',
-                midLabel: 'IDR_MID',
-                promoCode: body.promoCode
-            };
-
-            const chargePayment = await this.orderService.chargeCardPayment(userId, params.id, chargeData);
-
-            if (chargePayment.message === 'success') {
-                await this.notificationService.createNotification(
-                    userId,
-                    NotificationMessage.SUCCESS,
-                    chargePayment.orderId
-                );
-            }
-
-            // await this.notificationService.createNotification(
-            //     order.user_id,
-            //     NotificationMessage.CONFIRM_PAYMENT,
-            //     order.id
-            // );
-
-            console.log(`Admin with email: ${req.user.email} charge payment order ${chargePayment}`);
-            return res.status(200).json(chargePayment);
         } catch (err) {
             return next(err);
         }

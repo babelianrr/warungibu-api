@@ -240,7 +240,6 @@ export class PpobController {
                     payment: {
                         total_price: order.payment.total_amount,
                         payment_method: order.payment.method,
-                        payment_channel: order.payment.channel,
                         account_name: order.payment.account_name,
                         account_number: order.payment.account_number,
                         account_bank: order.payment.account_bank,

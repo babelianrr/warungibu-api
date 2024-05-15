@@ -76,7 +76,6 @@ async function routes(app: Application) {
     app.use('/api/v1/promotions', promotionController.getRouter());
     app.use('/api/v1/admin/promotions', adminPromotionController.getRouter());
 
-    app.use('/api/v1/payment_callback', paymentCallbackController.getRouter());
     app.use('/api/v1/carts', cartController.getRouter());
     app.use('/api/v1/carts_batch', cartBatchController.getRouter());
     app.use('/api/v1/bank_accounts', bankAccountController.getRouter());

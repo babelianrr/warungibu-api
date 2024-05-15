@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-types */
-import { EChannel } from 'src/clients/xendit/xendit.interfaces';
 import { Entity, PrimaryGeneratedColumn, CreateDateColumn, Column, UpdateDateColumn } from 'typeorm';
 
 export const TAX_PERCENTAGE = 11;
@@ -83,7 +82,6 @@ export interface IPaymentEvents {
     total_amount: number;
     status: EPaymentStatus;
     method?: EPaymentMethod;
-    channel: EChannel;
     account_number?: string;
     reference_number?: string;
     event_type: EPaymentEventType;
@@ -100,9 +98,6 @@ export class Payments {
 
     @Column({ type: 'varchar', enum: EPaymentMethod })
     method?: EPaymentMethod;
-
-    @Column({ type: 'varchar', enum: EChannel })
-    channel?: EChannel;
 
     @Column({ type: 'int' })
     product_price: number;

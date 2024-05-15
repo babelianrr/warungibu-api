@@ -10,7 +10,6 @@ import { CategoryController } from 'src/controllers/category';
 import { BranchController } from 'src/controllers/branch';
 import { ProductController } from 'src/controllers/product';
 import { RootController } from 'src/controllers/root';
-import { CallbackController } from 'src/controllers/callback';
 import { CartController } from 'src/controllers/cart';
 import { BankAccountController } from 'src/controllers/bank-account';
 import { OrderController } from 'src/controllers/order';
@@ -22,7 +21,6 @@ import { HealthcheckService } from 'src/services/healthcheck';
 import { CategoryService } from 'src/services/category';
 import { BranchService } from 'src/services/branch';
 import { ProductService } from 'src/services/product';
-import { PaymentCallbackService } from 'src/services/paymentCallback';
 import { CartService } from 'src/services/cart';
 import { BankAccountService } from 'src/services/bank-account';
 import { OrderService } from 'src/services/order';
@@ -120,7 +118,6 @@ export async function init(): Promise<Record<string, any>> {
     const healthcheckService = new HealthcheckService(getConnection());
     const categoryService = new CategoryService(categoryRepository);
     const branchService = new BranchService(branchRepository);
-    const paymentCallbackService = new PaymentCallbackService();
     const outletService = new OutletService(outletRepository);
     const outletAddressService = new OutletAddressService(outletAddressRepository);
     const outletTypeService = new OutletTypeService(outletTypeRepository, userRepository, orderRepository);
@@ -185,7 +182,6 @@ export async function init(): Promise<Record<string, any>> {
     const branchController = new BranchController(branchService);
     const adminCategoryController = new CategoryController(categoryService, 'ADMIN');
     const productController = new ProductController(productService);
-    const paymentCallbackController = new CallbackController(paymentCallbackService, orderService, notificationService);
     const adminProductController = new ProductController(productService, 'ADMIN');
     const userController = new UserController(userService, orderService, ' ', notificationService);
     const userAdminController = new UserController(userService, orderService, 'ADMIN', notificationService);
@@ -230,7 +226,6 @@ export async function init(): Promise<Record<string, any>> {
         categoryController,
         branchController,
         productController,
-        paymentCallbackController,
         userController,
         userAdminController,
         outletController,
