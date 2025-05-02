@@ -86,7 +86,8 @@ export async function init(): Promise<Record<string, any>> {
 
     // client
     const sendGrid = new SendGrid();
-    const firebase = new FirebaseAdmin(CERT_FILE);
+    const firebase = new FirebaseAdmin();
+    // const firebase = new FirebaseAdmin(CERT_FILE);
 
     // repositories
     await connect();

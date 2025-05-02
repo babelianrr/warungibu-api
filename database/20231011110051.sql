@@ -1,7 +1,7 @@
 /*
 PostgreSQL Backup
-Database: db_bcart/public
-Backup Time: 2023-10-11 11:01:13
+Database: warungibu/public
+Backup Time: 2024-05-11 11:01:13
 */
 
 DROP TABLE IF EXISTS "public"."branches";
@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS "public"."promotions_products";
 DROP TABLE IF EXISTS "public"."shipments";
 DROP TABLE IF EXISTS "public"."users";
 CREATE TABLE "branches" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "branch_code" varchar COLLATE "pg_catalog"."default" NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE "branches" (
 )
 ;
 CREATE TABLE "banners" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "image" varchar COLLATE "pg_catalog"."default" NOT NULL
@@ -44,7 +44,7 @@ CREATE TABLE "banners" (
 ;
 ALTER TABLE "banners" OWNER TO "postgres";
 CREATE TABLE "carts" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "quantity" int4 NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE "carts" (
 ;
 ALTER TABLE "carts" OWNER TO "postgres";
 CREATE TABLE "categories" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "name" varchar(40) COLLATE "pg_catalog"."default" NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE "categories" (
 ;
 ALTER TABLE "categories" OWNER TO "postgres";
 CREATE TABLE "flash_sales" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "notes" varchar COLLATE "pg_catalog"."default",
@@ -81,7 +81,7 @@ CREATE TABLE "flash_sales" (
 ;
 ALTER TABLE "flash_sales" OWNER TO "postgres";
 CREATE TABLE "news" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "user_id" uuid NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE "news" (
 ;
 ALTER TABLE "news" OWNER TO "postgres";
 CREATE TABLE "notifications" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "user_id" uuid NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE "notifications" (
 ;
 ALTER TABLE "notifications" OWNER TO "postgres";
 CREATE TABLE "orders" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "status" varchar COLLATE "pg_catalog"."default",
@@ -119,7 +119,7 @@ CREATE TABLE "orders" (
 ;
 ALTER TABLE "orders" OWNER TO "postgres";
 CREATE TABLE "outlet_types" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "name" varchar COLLATE "pg_catalog"."default",
@@ -132,7 +132,7 @@ CREATE TABLE "outlet_types" (
 ;
 ALTER TABLE "outlet_types" OWNER TO "postgres";
 CREATE TABLE "payments" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "method" varchar COLLATE "pg_catalog"."default",
   "channel" varchar COLLATE "pg_catalog"."default",
   "product_price" int4 NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE "payments" (
 ;
 ALTER TABLE "payments" OWNER TO "postgres";
 CREATE TABLE "ppob" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "product_name" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "category" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "brand" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE "product_flash_sales" (
 ;
 ALTER TABLE "product_flash_sales" OWNER TO "postgres";
 CREATE TABLE "product_images" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "url" varchar(200) COLLATE "pg_catalog"."default" NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE "product_images" (
 ;
 ALTER TABLE "product_images" OWNER TO "postgres";
 CREATE TABLE "product_reviews" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "rating" int4 NOT NULL,
   "notes" varchar COLLATE "pg_catalog"."default",
   "product_id" uuid,
@@ -220,7 +220,7 @@ CREATE TABLE "product_reviews" (
 ;
 ALTER TABLE "product_reviews" OWNER TO "postgres";
 CREATE TABLE "products" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "name" varchar(80) COLLATE "pg_catalog"."default" NOT NULL,
@@ -250,7 +250,7 @@ CREATE TABLE "products_categories" (
 ;
 ALTER TABLE "products_categories" OWNER TO "postgres";
 CREATE TABLE "promotions" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "code" varchar COLLATE "pg_catalog"."default",
   "name" varchar COLLATE "pg_catalog"."default" NOT NULL,
   "start_date" date,
@@ -268,7 +268,7 @@ CREATE TABLE "promotions" (
 ;
 ALTER TABLE "promotions" OWNER TO "postgres";
 CREATE TABLE "promotions_products" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "promotion_id" uuid NOT NULL,
   "product_id" uuid NOT NULL,
   "percentage" numeric DEFAULT 0.00,
@@ -281,7 +281,7 @@ CREATE TABLE "promotions_products" (
 ;
 ALTER TABLE "promotions_products" OWNER TO "postgres";
 CREATE TABLE "shipments" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "courier" varchar COLLATE "pg_catalog"."default" NOT NULL,
@@ -297,7 +297,7 @@ CREATE TABLE "shipments" (
 ;
 ALTER TABLE "shipments" OWNER TO "postgres";
 CREATE TABLE "users" (
-  "id" uuid NOT NULL,
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "name" varchar COLLATE "pg_catalog"."default" NOT NULL,
   "email" varchar COLLATE "pg_catalog"."default" NOT NULL,
   "password" varchar COLLATE "pg_catalog"."default",

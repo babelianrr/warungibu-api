@@ -108,12 +108,12 @@ export interface IUserService {
     verifiedEmailToken(email: string, token: string): Promise<any>;
     resendEmailVerification(email: string): Promise<void>;
     checkUserVerification(userId: string): Promise<boolean>;
-    sendChat(id: string, text: string): Promise<void>;
+    // sendChat(id: string, text: string): Promise<void>;
     getAllUser(query: IQueryUsers): Promise<Users[]>;
     countAll(query?: IQueryUsers, payload?: any): Promise<any>;
     countAll(query?: IQueryUsers, payload?: any): Promise<any>;
-    sendChatForAdmin(admin: { id: string; email: string }, userId: string, text: string): Promise<any>;
-    updateReadChat(userId: string, userLoginId: string): Promise<any>;
+    // sendChatForAdmin(admin: { id: string; email: string }, userId: string, text: string): Promise<any>;
+    // updateReadChat(userId: string, userLoginId: string): Promise<any>;
     requestPasswordReset(email: string): Promise<boolean>;
     requestPinReset(email: string): Promise<boolean>;
     resetPassword(resetPasswordData: IResetPasswordData): Promise<Users>;
@@ -758,46 +758,46 @@ export class UserService implements IUserService {
         return total;
     }
 
-    async sendChat(id: string, text: string) {
-        const user = await this.userRepo.findOne({ id });
+    // async sendChat(id: string, text: string) {
+    //     const user = await this.userRepo.findOne({ id });
 
-        if (!user) {
-            throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, 'User Tidak Ditemukan', {
-                user,
-                id,
-                text
-            });
-        }
+    //     if (!user) {
+    //         throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, 'User Tidak Ditemukan', {
+    //             user,
+    //             id,
+    //             text
+    //         });
+    //     }
 
-        await this.fireBase.sendChat(user.id, text, user.role_status);
-    }
+    //     await this.fireBase.sendChat(user.id, text, user.role_status);
+    // }
 
-    async updateReadChat(userId: string, userLoginId: string) {
-        const user = await this.userRepo.find({ id: userId });
+    // async updateReadChat(userId: string, userLoginId: string) {
+    //     const user = await this.userRepo.find({ id: userId });
 
-        if (!user) {
-            throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, 'User Tidak Ditemukan', {
-                userr_id: userId,
-                user_login_id: userLoginId
-            });
-        }
-        await this.fireBase.readChat(userId, userLoginId);
-    }
+    //     if (!user) {
+    //         throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, 'User Tidak Ditemukan', {
+    //             userr_id: userId,
+    //             user_login_id: userLoginId
+    //         });
+    //     }
+    //     await this.fireBase.readChat(userId, userLoginId);
+    // }
 
-    async sendChatForAdmin(admin: { id: string; email: string }, userId: string, text: string) {
-        const user = await this.userRepo.find({ id: userId });
+    // async sendChatForAdmin(admin: { id: string; email: string }, userId: string, text: string) {
+    //     const user = await this.userRepo.find({ id: userId });
 
-        if (!user) {
-            throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, 'User Tidak Ditemukan', {
-                admin_id: admin.id,
-                admin_email: admin.email,
-                user_id: userId,
-                text
-            });
-        }
+    //     if (!user) {
+    //         throw new ErrorObject(ErrorCodes.USER_NOT_FOUND_ERROR, 'User Tidak Ditemukan', {
+    //             admin_id: admin.id,
+    //             admin_email: admin.email,
+    //             user_id: userId,
+    //             text
+    //         });
+    //     }
 
-        await this.fireBase.sendChatForAdmin(userId, admin.id, text);
-    }
+    //     await this.fireBase.sendChatForAdmin(userId, admin.id, text);
+    // }
 
     async requestPasswordReset(email: string): Promise<boolean> {
         const user = await this.userRepo.findUserByData(email, 'email');

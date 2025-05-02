@@ -61,8 +61,8 @@ export class UserController {
             this.router.use(adminAuthentication);
             this.router.get('/', this.getAllUserForAdmin.bind(this));
             this.router.post('/register_admin', this.registerAdmin.bind(this));
-            this.router.post('/chats', this.sendChatForAdmin.bind(this));
-            this.router.post('/chats/read', this.readChatAdmin.bind(this));
+            // this.router.post('/chats', this.sendChatForAdmin.bind(this));
+            // this.router.post('/chats/read', this.readChatAdmin.bind(this));
             this.router.post('/register_admin', this.registerAdmin.bind(this));
             this.router.post('/customer_id', this.updateUserCustomerId.bind(this));
             this.router.get('/:data', this.getUserByIdForAdmin.bind(this));
@@ -77,8 +77,8 @@ export class UserController {
             this.router.patch('/update-pin', this.updatePinForUser.bind(this));
             this.router.post('/verified_email_token', this.verifiedEmailToken.bind(this));
             this.router.get('/verification_check', this.userVerificationCheck.bind(this));
-            this.router.post('/chats', this.sendChat.bind(this));
-            this.router.post('/chats/read', this.readChatUser.bind(this));
+            // this.router.post('/chats', this.sendChat.bind(this));
+            // this.router.post('/chats/read', this.readChatUser.bind(this));
             this.router.post('/import-excel', uploadHandlerExcel.single('file'), this.importExcelUser.bind(this));
             this.router.get('/export-excel', this.exportExcelUser.bind(this));
             this.router.patch(
@@ -319,59 +319,59 @@ export class UserController {
         }
     }
 
-    async sendChat(req: IRequestExtra, res: Response, next: NextFunction) {
-        try {
-            const { user, body } = req;
+    // async sendChat(req: IRequestExtra, res: Response, next: NextFunction) {
+    //     try {
+    //         const { user, body } = req;
 
-            await this.userService.sendChat(user.id, body.text);
-            return res.status(200).json({ status: 'OK' });
-        } catch (error) {
-            return next(error);
-        }
-    }
+    //         await this.userService.sendChat(user.id, body.text);
+    //         return res.status(200).json({ status: 'OK' });
+    //     } catch (error) {
+    //         return next(error);
+    //     }
+    // }
 
-    async sendChatForAdmin(req: IRequestExtra, res: Response, next: NextFunction) {
-        try {
-            const { user, body } = req;
+    // async sendChatForAdmin(req: IRequestExtra, res: Response, next: NextFunction) {
+    //     try {
+    //         const { user, body } = req;
 
-            await this.userService.sendChatForAdmin(
-                {
-                    id: user.id,
-                    email: user.email
-                },
-                body.user_id,
-                body.text
-            );
+    //         await this.userService.sendChatForAdmin(
+    //             {
+    //                 id: user.id,
+    //                 email: user.email
+    //             },
+    //             body.user_id,
+    //             body.text
+    //         );
 
-            return res.status(200).json({ status: 'OK' });
-        } catch (error) {
-            return next(error);
-        }
-    }
+    //         return res.status(200).json({ status: 'OK' });
+    //     } catch (error) {
+    //         return next(error);
+    //     }
+    // }
 
-    async readChatAdmin(req: IRequestExtra, res: Response, next: NextFunction) {
-        try {
-            const { user, body } = req;
+    // async readChatAdmin(req: IRequestExtra, res: Response, next: NextFunction) {
+    //     try {
+    //         const { user, body } = req;
 
-            await this.userService.updateReadChat(body.user_id, user.id);
+    //         await this.userService.updateReadChat(body.user_id, user.id);
 
-            return res.status(200).json({ status: 'OK' });
-        } catch (error) {
-            return next(error);
-        }
-    }
+    //         return res.status(200).json({ status: 'OK' });
+    //     } catch (error) {
+    //         return next(error);
+    //     }
+    // }
 
-    async readChatUser(req: IRequestExtra, res: Response, next: NextFunction) {
-        try {
-            const { user } = req;
+    // async readChatUser(req: IRequestExtra, res: Response, next: NextFunction) {
+    //     try {
+    //         const { user } = req;
 
-            await this.userService.updateReadChat(user.id, user.id);
+    //         await this.userService.updateReadChat(user.id, user.id);
 
-            return res.status(200).json({ status: 'OK' });
-        } catch (error) {
-            return next(error);
-        }
-    }
+    //         return res.status(200).json({ status: 'OK' });
+    //     } catch (error) {
+    //         return next(error);
+    //     }
+    // }
 
     async registerAdmin(req: IRequestExtra, res: Response, next: NextFunction) {
         try {

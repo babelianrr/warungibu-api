@@ -60,47 +60,47 @@ async function routes(app: Application) {
 
     app.use('/', rootController.getRouter());
     app.use('/healthcheck', healthcheckController.getRouter());
-    app.use('/api/v1/users', userController.getRouter());
-    app.use('/api/v1/admin/users', userAdminController.getRouter());
+    app.use('/users', userController.getRouter());
+    app.use('/admin/users', userAdminController.getRouter());
 
-    app.use('/api/v1/categories', categoryController.getRouter());
-    app.use('/api/v1/admin/categories', adminCategoryController.getRouter());
+    app.use('/categories', categoryController.getRouter());
+    app.use('/admin/categories', adminCategoryController.getRouter());
 
-    app.use('/api/v1/outlets', outletController.getRouter());
+    app.use('/outlets', outletController.getRouter());
 
-    app.use('/api/v1/outlet_addresses', outletAddressController.getRouter());
+    app.use('/outlet_addresses', outletAddressController.getRouter());
 
-    app.use('/api/v1/products', productController.getRouter());
-    app.use('/api/v1/admin/products', adminProductController.getRouter());
+    app.use('/products', productController.getRouter());
+    app.use('/admin/products', adminProductController.getRouter());
 
-    app.use('/api/v1/promotions', promotionController.getRouter());
-    app.use('/api/v1/admin/promotions', adminPromotionController.getRouter());
+    app.use('/promotions', promotionController.getRouter());
+    app.use('/admin/promotions', adminPromotionController.getRouter());
 
-    app.use('/api/v1/carts', cartController.getRouter());
-    app.use('/api/v1/carts_batch', cartBatchController.getRouter());
-    app.use('/api/v1/bank_accounts', bankAccountController.getRouter());
+    app.use('/carts', cartController.getRouter());
+    app.use('/carts_batch', cartBatchController.getRouter());
+    app.use('/bank_accounts', bankAccountController.getRouter());
 
-    app.use('/api/v1/payment_terms', paymentTermsController.getRouter());
+    app.use('/payment_terms', paymentTermsController.getRouter());
 
-    app.use('/api/v1/orders', orderController.getRouter());
-    app.use('/api/v1/admin/orders', adminOrderController.getRouter());
+    app.use('/orders', orderController.getRouter());
+    app.use('/admin/orders', adminOrderController.getRouter());
 
-    app.use('/api/v1/branch', branchController.getRouter());
-    app.use('/api/v1/notifications', notificationController.getRouter());
-    app.use('/api/v1/banners', bannerController.getRouter());
-    app.use('/api/v1/admin/products', adminProductController.getRouter());
-    app.use('/api/v1/admin/report', reportController.getRouter());
-    app.use('/api/v1/product_reviews', productReviewController.getRouter());
-    app.use('/api/v1/admin/product_reviews', productReviewAdminController.getRouter());
+    app.use('/branch', branchController.getRouter());
+    app.use('/notifications', notificationController.getRouter());
+    app.use('/banners', bannerController.getRouter());
+    app.use('/admin/products', adminProductController.getRouter());
+    app.use('/admin/report', reportController.getRouter());
+    app.use('/product_reviews', productReviewController.getRouter());
+    app.use('/admin/product_reviews', productReviewAdminController.getRouter());
 
-    app.use('/api/v1/flash-sales', flashSaleController.getRouter());
-    app.use('/api/v1/admin/flash-sales', flashSaleAdminController.getRouter());
+    app.use('/flash-sales', flashSaleController.getRouter());
+    app.use('/admin/flash-sales', flashSaleAdminController.getRouter());
 
-    app.use('/api/v1/news', newsController.getRouter());
-    app.use('/api/v1/outlet_types', outletTypeController.getRouter());
+    app.use('/news', newsController.getRouter());
+    app.use('/outlet_types', outletTypeController.getRouter());
 
-    app.use('/api/v1/ppob', ppobController.getRouter());
-    app.use('/api/v1/admin/ppob', ppobAdminController.getRouter());
+    app.use('/ppob', ppobController.getRouter());
+    app.use('/admin/ppob', ppobAdminController.getRouter());
 }
 
 export async function createApp(): Promise<express.Application> {
